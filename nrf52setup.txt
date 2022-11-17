@@ -1,9 +1,0 @@
-Get jlink sw:
-https://www.segger.com/downloads/jlink/
-Get command line tools: 
-https://www.nordicsemi.com/Products/Development-tools/nrf-command-line-tools/download
-Example command line to flash chip: 
-https://infocenter.nordicsemi.com/index.jsp?topic=%2Fug_nrf_cltools%2FUG%2Fcltools%2Fnrf_nrfjprogexe.html
-Need arm tool chain to compile. Unpack tar https://developer.arm.com/downloads/-/gnu-rm: 
-tar -xvf gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2
-https://infocenter.nordicsemi.com/index.jsp?topic=%2Fstruct_sdk%2Fstruct%2Fsdk_nrf5_latest.html
