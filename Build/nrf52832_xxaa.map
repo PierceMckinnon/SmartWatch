@@ -294,6 +294,8 @@ Discarded input sections
                 0x0000000000000000       0x2c Build/nrf52832_xxaa/boards.c.o
  .text.bsp_board_leds_on
                 0x0000000000000000       0x2c Build/nrf52832_xxaa/boards.c.o
+ .text.bsp_board_led_invert
+                0x0000000000000000       0x24 Build/nrf52832_xxaa/boards.c.o
  .text.bsp_board_led_idx_to_pin
                 0x0000000000000000        0xc Build/nrf52832_xxaa/boards.c.o
  .text.bsp_board_pin_to_led_idx
@@ -305,6 +307,8 @@ Discarded input sections
  .text.bsp_board_button_idx_to_pin
                 0x0000000000000000        0xc Build/nrf52832_xxaa/boards.c.o
  .rodata.m_board_btn_list
+                0x0000000000000000        0x4 Build/nrf52832_xxaa/boards.c.o
+ .rodata.m_board_led_list
                 0x0000000000000000        0x4 Build/nrf52832_xxaa/boards.c.o
  .debug_macro   0x0000000000000000      0xa96 Build/nrf52832_xxaa/boards.c.o
  .debug_macro   0x0000000000000000      0x6ac Build/nrf52832_xxaa/boards.c.o
@@ -2019,15 +2023,15 @@ Discarded input sections
  .data          0x0000000000000000        0x0 Build/nrf52832_xxaa/main.c.o
  .bss           0x0000000000000000        0x0 Build/nrf52832_xxaa/main.c.o
  .debug_macro   0x0000000000000000      0xa96 Build/nrf52832_xxaa/main.c.o
- .debug_macro   0x0000000000000000       0x22 Build/nrf52832_xxaa/main.c.o
+ .debug_macro   0x0000000000000000      0x6ac Build/nrf52832_xxaa/main.c.o
  .debug_macro   0x0000000000000000       0x22 Build/nrf52832_xxaa/main.c.o
  .debug_macro   0x0000000000000000       0x56 Build/nrf52832_xxaa/main.c.o
  .debug_macro   0x0000000000000000       0x51 Build/nrf52832_xxaa/main.c.o
  .debug_macro   0x0000000000000000      0x103 Build/nrf52832_xxaa/main.c.o
  .debug_macro   0x0000000000000000       0x6a Build/nrf52832_xxaa/main.c.o
  .debug_macro   0x0000000000000000      0x1df Build/nrf52832_xxaa/main.c.o
- .debug_macro   0x0000000000000000      0x6ac Build/nrf52832_xxaa/main.c.o
  .debug_macro   0x0000000000000000      0x16d Build/nrf52832_xxaa/main.c.o
+ .debug_macro   0x0000000000000000       0x22 Build/nrf52832_xxaa/main.c.o
  .debug_macro   0x0000000000000000       0x22 Build/nrf52832_xxaa/main.c.o
  .debug_macro   0x0000000000000000       0x3b Build/nrf52832_xxaa/main.c.o
  .debug_macro   0x0000000000000000       0x1c Build/nrf52832_xxaa/main.c.o
@@ -2075,6 +2079,7 @@ Discarded input sections
  .debug_macro   0x0000000000000000       0x7b Build/nrf52832_xxaa/main.c.o
  .debug_macro   0x0000000000000000       0x64 Build/nrf52832_xxaa/main.c.o
  .debug_macro   0x0000000000000000       0x20 Build/nrf52832_xxaa/main.c.o
+ .debug_macro   0x0000000000000000       0x1c Build/nrf52832_xxaa/main.c.o
  .debug_macro   0x0000000000000000      0x25a Build/nrf52832_xxaa/main.c.o
  .debug_macro   0x0000000000000000      0x16d Build/nrf52832_xxaa/main.c.o
  .group         0x0000000000000000        0xc Build/nrf52832_xxaa/system_nrf52.c.o
@@ -2169,7 +2174,7 @@ RAM              0x0000000020000000 0x0000000000010000 xrw
 Linker script and memory map
 
 
-.text           0x0000000000000000      0x80c
+.text           0x0000000000000000      0x7a8
  *(.isr_vector)
  .isr_vector    0x0000000000000000      0x200 Build/nrf52832_xxaa/gcc_startup_nrf52.S.o
                 0x0000000000000000                __isr_vector
@@ -2228,35 +2233,32 @@ Linker script and memory map
                 0x00000000000002f6                NFCT_IRQHandler
                 0x00000000000002f6                MWU_IRQHandler
                 0x00000000000002f6                COMP_LPCOMP_IRQHandler
- .text.bsp_board_led_invert
-                0x00000000000002f8       0x24 Build/nrf52832_xxaa/boards.c.o
-                0x00000000000002f8                bsp_board_led_invert
  .text.bsp_board_init
-                0x000000000000031c       0x5c Build/nrf52832_xxaa/boards.c.o
-                0x000000000000031c                bsp_board_init
+                0x00000000000002f8       0x5c Build/nrf52832_xxaa/boards.c.o
+                0x00000000000002f8                bsp_board_init
  .text.startup.main
-                0x0000000000000378       0x3c Build/nrf52832_xxaa/main.c.o
-                0x0000000000000378                main
+                0x0000000000000354        0xc Build/nrf52832_xxaa/main.c.o
+                0x0000000000000354                main
  .text.SystemInit
-                0x00000000000003b4      0x398 Build/nrf52832_xxaa/system_nrf52.c.o
-                0x00000000000003b4                SystemInit
- .text.exit     0x000000000000074c       0x28 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(lib_a-exit.o)
-                0x000000000000074c                exit
+                0x0000000000000360      0x398 Build/nrf52832_xxaa/system_nrf52.c.o
+                0x0000000000000360                SystemInit
+ .text.exit     0x00000000000006f8       0x28 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(lib_a-exit.o)
+                0x00000000000006f8                exit
  .text.__libc_init_array
-                0x0000000000000774       0x48 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(lib_a-init.o)
-                0x0000000000000774                __libc_init_array
- .text.memset   0x00000000000007bc       0x10 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(lib_a-memset.o)
-                0x00000000000007bc                memset
- .text._exit    0x00000000000007cc        0x4 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(_exit.o)
-                0x00000000000007cc                _exit
+                0x0000000000000720       0x48 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(lib_a-init.o)
+                0x0000000000000720                __libc_init_array
+ .text.memset   0x0000000000000768       0x10 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(lib_a-memset.o)
+                0x0000000000000768                memset
+ .text._exit    0x0000000000000778        0x4 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(_exit.o)
+                0x0000000000000778                _exit
  *(.init)
- .init          0x00000000000007d0        0x4 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crti.o
-                0x00000000000007d0                _init
- .init          0x00000000000007d4        0x8 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crtn.o
+ .init          0x000000000000077c        0x4 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crti.o
+                0x000000000000077c                _init
+ .init          0x0000000000000780        0x8 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crtn.o
  *(.fini)
- .fini          0x00000000000007dc        0x4 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crti.o
-                0x00000000000007dc                _fini
- .fini          0x00000000000007e0        0x8 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crtn.o
+ .fini          0x0000000000000788        0x4 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crti.o
+                0x0000000000000788                _fini
+ .fini          0x000000000000078c        0x8 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crtn.o
  *crtbegin.o(.ctors)
  *crtbegin?.o(.ctors)
  *(EXCLUDE_FILE(*crtend.o *crtend?.o) .ctors)
@@ -2268,74 +2270,68 @@ Linker script and memory map
  *(SORT_BY_NAME(.dtors.*))
  *(.dtors)
  *(.rodata*)
- .rodata.m_board_led_list
-                0x00000000000007e8        0x4 Build/nrf52832_xxaa/boards.c.o
- *fill*         0x00000000000007ec        0x4 
- .rodata.delay_machine_code.0
-                0x00000000000007f0        0x6 Build/nrf52832_xxaa/main.c.o
- *fill*         0x00000000000007f6        0x2 
  .rodata.CSWTCH.15
-                0x00000000000007f8        0x4 Build/nrf52832_xxaa/system_nrf52.c.o
+                0x0000000000000794        0x4 Build/nrf52832_xxaa/system_nrf52.c.o
  .rodata.CSWTCH.19
-                0x00000000000007fc        0x4 Build/nrf52832_xxaa/system_nrf52.c.o
+                0x0000000000000798        0x4 Build/nrf52832_xxaa/system_nrf52.c.o
  .rodata.CSWTCH.5
-                0x0000000000000800        0x4 Build/nrf52832_xxaa/system_nrf52.c.o
+                0x000000000000079c        0x4 Build/nrf52832_xxaa/system_nrf52.c.o
  .rodata._global_impure_ptr
-                0x0000000000000804        0x4 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(lib_a-impure.o)
-                0x0000000000000804                _global_impure_ptr
+                0x00000000000007a0        0x4 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(lib_a-impure.o)
+                0x00000000000007a0                _global_impure_ptr
  *(.eh_frame*)
- .eh_frame      0x0000000000000808        0x0 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crtbegin.o
- .eh_frame      0x0000000000000808        0x4 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crtend.o
+ .eh_frame      0x00000000000007a4        0x0 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crtbegin.o
+ .eh_frame      0x00000000000007a4        0x4 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crtend.o
 
-.glue_7         0x000000000000080c        0x0
- .glue_7        0x000000000000080c        0x0 linker stubs
+.glue_7         0x00000000000007a8        0x0
+ .glue_7        0x00000000000007a8        0x0 linker stubs
 
-.glue_7t        0x000000000000080c        0x0
- .glue_7t       0x000000000000080c        0x0 linker stubs
+.glue_7t        0x00000000000007a8        0x0
+ .glue_7t       0x00000000000007a8        0x0 linker stubs
 
-.vfp11_veneer   0x000000000000080c        0x0
- .vfp11_veneer  0x000000000000080c        0x0 linker stubs
+.vfp11_veneer   0x00000000000007a8        0x0
+ .vfp11_veneer  0x00000000000007a8        0x0 linker stubs
 
-.v4_bx          0x000000000000080c        0x0
- .v4_bx         0x000000000000080c        0x0 linker stubs
+.v4_bx          0x00000000000007a8        0x0
+ .v4_bx         0x00000000000007a8        0x0 linker stubs
 
-.iplt           0x000000000000080c        0x0
- .iplt          0x000000000000080c        0x0 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crtbegin.o
+.iplt           0x00000000000007a8        0x0
+ .iplt          0x00000000000007a8        0x0 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crtbegin.o
 
 .mem_section_dummy_rom
 
 .log_const_data
-                0x000000000000080c        0x0
+                0x00000000000007a8        0x0
                 [!provide]                        PROVIDE (__start_log_const_data = .)
  *(SORT_BY_NAME(.log_const_data*))
                 [!provide]                        PROVIDE (__stop_log_const_data = .)
 
-.log_backends   0x000000000000080c        0x0
+.log_backends   0x00000000000007a8        0x0
                 [!provide]                        PROVIDE (__start_log_backends = .)
  *(SORT_BY_NAME(.log_backends*))
                 [!provide]                        PROVIDE (__stop_log_backends = .)
 
-.nrf_balloc     0x000000000000080c        0x0
+.nrf_balloc     0x00000000000007a8        0x0
                 [!provide]                        PROVIDE (__start_nrf_balloc = .)
  *(.nrf_balloc)
                 [!provide]                        PROVIDE (__stop_nrf_balloc = .)
 
 .ARM.extab
  *(.ARM.extab* .gnu.linkonce.armextab.*)
-                0x000000000000080c                __exidx_start = .
+                0x00000000000007a8                __exidx_start = .
 
-.ARM.exidx      0x000000000000080c        0x8
+.ARM.exidx      0x00000000000007a8        0x8
  *(.ARM.exidx* .gnu.linkonce.armexidx.*)
- .ARM.exidx     0x000000000000080c        0x8 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/crt0.o
+ .ARM.exidx     0x00000000000007a8        0x8 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/crt0.o
                                          0x10 (size before relaxing)
-                0x0000000000000814                __exidx_end = .
+                0x00000000000007b0                __exidx_end = .
 
-.rel.dyn        0x0000000000000814        0x0
- .rel.iplt      0x0000000000000814        0x0 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crtbegin.o
-                0x0000000000000814                . = ALIGN (0x4)
-                0x0000000000000814                __etext = .
+.rel.dyn        0x00000000000007b0        0x0
+ .rel.iplt      0x00000000000007b0        0x0 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crtbegin.o
+                0x00000000000007b0                . = ALIGN (0x4)
+                0x00000000000007b0                __etext = .
 
-.data           0x0000000020000000       0x6c load address 0x0000000000000814
+.data           0x0000000020000000       0x6c load address 0x00000000000007b0
                 0x0000000020000000                __data_start__ = .
  *(vtable)
  *(.data*)
@@ -2405,7 +2401,7 @@ LOAD /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3
 LOAD /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a
 END GROUP
 
-.igot.plt       0x000000002000006c        0x0 load address 0x0000000000000880
+.igot.plt       0x000000002000006c        0x0 load address 0x000000000000081c
  .igot.plt      0x000000002000006c        0x0 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/crtbegin.o
                 0x000000002000006c                . = ALIGN (0x4)
 
@@ -2423,7 +2419,7 @@ END GROUP
  *(SORT_BY_NAME(.log_filter_data*))
                 [!provide]                        PROVIDE (__stop_log_filter_data = .)
 
-.bss            0x000000002000006c       0x1c load address 0x0000000000000880
+.bss            0x000000002000006c       0x1c load address 0x000000000000081c
                 0x000000002000006c                . = ALIGN (0x4)
                 0x000000002000006c                __bss_start__ = .
  *(.bss*)
@@ -2448,8 +2444,8 @@ END GROUP
                 0x0000000020010000                PROVIDE (__stack = __StackTop)
                 0x0000000000000001                ASSERT ((__StackLimit >= __HeapLimit), region RAM overflowed with stack)
                 0x000000000000006c                DataInitFlashUsed = (__bss_start__ - __data_start__)
-                0x0000000000000814                CodeFlashUsed = (__etext - ORIGIN (FLASH))
-                0x0000000000000880                TotalFlashUsed = (CodeFlashUsed + DataInitFlashUsed)
+                0x00000000000007b0                CodeFlashUsed = (__etext - ORIGIN (FLASH))
+                0x000000000000081c                TotalFlashUsed = (CodeFlashUsed + DataInitFlashUsed)
                 0x0000000000000001                ASSERT ((TotalFlashUsed <= LENGTH (FLASH)), region FLASH overflowed with .data and user data)
 OUTPUT(Build/nrf52832_xxaa.out elf32-littlearm)
 LOAD linker stubs
@@ -2491,23 +2487,23 @@ LOAD linker stubs
  .comment       0x0000000000000049       0x4a Build/nrf52832_xxaa/main.c.o
  .comment       0x0000000000000049       0x4a Build/nrf52832_xxaa/system_nrf52.c.o
 
-.debug_line     0x0000000000000000     0x209c
+.debug_line     0x0000000000000000     0x1fe5
  .debug_line    0x0000000000000000       0x7a Build/nrf52832_xxaa/gcc_startup_nrf52.S.o
  .debug_line    0x000000000000007a      0xfbf Build/nrf52832_xxaa/boards.c.o
- .debug_line    0x0000000000001039      0x737 Build/nrf52832_xxaa/main.c.o
- .debug_line    0x0000000000001770      0x92c Build/nrf52832_xxaa/system_nrf52.c.o
+ .debug_line    0x0000000000001039      0x680 Build/nrf52832_xxaa/main.c.o
+ .debug_line    0x00000000000016b9      0x92c Build/nrf52832_xxaa/system_nrf52.c.o
 
-.debug_info     0x0000000000000000     0x254e
+.debug_info     0x0000000000000000     0x23b9
  .debug_info    0x0000000000000000       0x26 Build/nrf52832_xxaa/gcc_startup_nrf52.S.o
  .debug_info    0x0000000000000026      0xddc Build/nrf52832_xxaa/boards.c.o
- .debug_info    0x0000000000000e02      0x242 Build/nrf52832_xxaa/main.c.o
- .debug_info    0x0000000000001044     0x150a Build/nrf52832_xxaa/system_nrf52.c.o
+ .debug_info    0x0000000000000e02       0xad Build/nrf52832_xxaa/main.c.o
+ .debug_info    0x0000000000000eaf     0x150a Build/nrf52832_xxaa/system_nrf52.c.o
 
-.debug_abbrev   0x0000000000000000      0x6ce
+.debug_abbrev   0x0000000000000000      0x5c1
  .debug_abbrev  0x0000000000000000       0x14 Build/nrf52832_xxaa/gcc_startup_nrf52.S.o
  .debug_abbrev  0x0000000000000014      0x2df Build/nrf52832_xxaa/boards.c.o
- .debug_abbrev  0x00000000000002f3      0x182 Build/nrf52832_xxaa/main.c.o
- .debug_abbrev  0x0000000000000475      0x259 Build/nrf52832_xxaa/system_nrf52.c.o
+ .debug_abbrev  0x00000000000002f3       0x75 Build/nrf52832_xxaa/main.c.o
+ .debug_abbrev  0x0000000000000368      0x259 Build/nrf52832_xxaa/system_nrf52.c.o
 
 .debug_aranges  0x0000000000000000       0xe0
  .debug_aranges
@@ -2519,26 +2515,25 @@ LOAD linker stubs
  .debug_aranges
                 0x00000000000000b8       0x28 Build/nrf52832_xxaa/system_nrf52.c.o
 
-.debug_str      0x0000000000000000    0x6ee9a
+.debug_str      0x0000000000000000    0x6ee06
  .debug_str     0x0000000000000000       0x5c Build/nrf52832_xxaa/gcc_startup_nrf52.S.o
  .debug_str     0x000000000000005c    0x6e78b Build/nrf52832_xxaa/boards.c.o
                                       0x6f4f5 (size before relaxing)
- .debug_str     0x000000000006e7e7       0xa9 Build/nrf52832_xxaa/main.c.o
-                                      0x6f066 (size before relaxing)
- .debug_str     0x000000000006e890      0x60a Build/nrf52832_xxaa/system_nrf52.c.o
+ .debug_str     0x000000000006e7e7       0x15 Build/nrf52832_xxaa/main.c.o
+                                      0x6ef8e (size before relaxing)
+ .debug_str     0x000000000006e7fc      0x60a Build/nrf52832_xxaa/system_nrf52.c.o
                                       0x5e262 (size before relaxing)
 
-.debug_loc      0x0000000000000000     0x10fc
+.debug_loc      0x0000000000000000     0x1030
  .debug_loc     0x0000000000000000      0xd67 Build/nrf52832_xxaa/boards.c.o
- .debug_loc     0x0000000000000d67       0xcc Build/nrf52832_xxaa/main.c.o
- .debug_loc     0x0000000000000e33      0x2c9 Build/nrf52832_xxaa/system_nrf52.c.o
+ .debug_loc     0x0000000000000d67      0x2c9 Build/nrf52832_xxaa/system_nrf52.c.o
 
-.debug_ranges   0x0000000000000000      0xab8
+.debug_ranges   0x0000000000000000      0xa38
  .debug_ranges  0x0000000000000000      0x928 Build/nrf52832_xxaa/boards.c.o
- .debug_ranges  0x0000000000000928       0x90 Build/nrf52832_xxaa/main.c.o
- .debug_ranges  0x00000000000009b8      0x100 Build/nrf52832_xxaa/system_nrf52.c.o
+ .debug_ranges  0x0000000000000928       0x10 Build/nrf52832_xxaa/main.c.o
+ .debug_ranges  0x0000000000000938      0x100 Build/nrf52832_xxaa/system_nrf52.c.o
 
-.debug_macro    0x0000000000000000     0x171e
+.debug_macro    0x0000000000000000     0x16f2
  .debug_macro   0x0000000000000000      0x33e Build/nrf52832_xxaa/boards.c.o
  .debug_macro   0x000000000000033e       0xfb Build/nrf52832_xxaa/boards.c.o
  .debug_macro   0x0000000000000439       0x40 Build/nrf52832_xxaa/boards.c.o
@@ -2563,15 +2558,14 @@ LOAD linker stubs
  .debug_macro   0x0000000000000e9f       0x1c Build/nrf52832_xxaa/boards.c.o
  .debug_macro   0x0000000000000ebb      0x25a Build/nrf52832_xxaa/boards.c.o
  .debug_macro   0x0000000000001115      0x16d Build/nrf52832_xxaa/boards.c.o
- .debug_macro   0x0000000000001282      0x348 Build/nrf52832_xxaa/main.c.o
- .debug_macro   0x00000000000015ca       0x22 Build/nrf52832_xxaa/main.c.o
- .debug_macro   0x00000000000015ec      0x132 Build/nrf52832_xxaa/system_nrf52.c.o
+ .debug_macro   0x0000000000001282      0x33e Build/nrf52832_xxaa/main.c.o
+ .debug_macro   0x00000000000015c0      0x132 Build/nrf52832_xxaa/system_nrf52.c.o
 
-.debug_frame    0x0000000000000000      0x1f4
+.debug_frame    0x0000000000000000      0x1f0
  .debug_frame   0x0000000000000000       0xf4 Build/nrf52832_xxaa/boards.c.o
- .debug_frame   0x00000000000000f4       0x2c Build/nrf52832_xxaa/main.c.o
- .debug_frame   0x0000000000000120       0x40 Build/nrf52832_xxaa/system_nrf52.c.o
- .debug_frame   0x0000000000000160       0x28 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(lib_a-exit.o)
- .debug_frame   0x0000000000000188       0x2c /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(lib_a-init.o)
- .debug_frame   0x00000000000001b4       0x20 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(lib_a-memset.o)
- .debug_frame   0x00000000000001d4       0x20 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(_exit.o)
+ .debug_frame   0x00000000000000f4       0x28 Build/nrf52832_xxaa/main.c.o
+ .debug_frame   0x000000000000011c       0x40 Build/nrf52832_xxaa/system_nrf52.c.o
+ .debug_frame   0x000000000000015c       0x28 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(lib_a-exit.o)
+ .debug_frame   0x0000000000000184       0x2c /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(lib_a-init.o)
+ .debug_frame   0x00000000000001b0       0x20 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(lib_a-memset.o)
+ .debug_frame   0x00000000000001d0       0x20 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(_exit.o)

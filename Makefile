@@ -1,12 +1,12 @@
-PROJECT_NAME     := blinky_pca10040
+PROJECT_NAME     := Template
 TARGETS          := nrf52832_xxaa
-OUTPUT_DIRECTORY := ../Build
+OUTPUT_DIRECTORY := Build
 
 SDK_ROOT := ./SDK
 PROJ_DIR := ./Source
 
 $(OUTPUT_DIRECTORY)/nrf52832_xxaa.out: \
-  LINKER_SCRIPT  := blinky_gcc_nrf52.ld
+  LINKER_SCRIPT  := template_nrf52.ld
 
 # Source files common to all targets
 SRC_FILES += \

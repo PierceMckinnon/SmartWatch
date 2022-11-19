@@ -1,5 +1,7 @@
-Build/nrf52832_xxaa/main.c.o: main.c \
- /opt/tools/gcc-arm-none-eabi-10.3-2021.10/lib/gcc/arm-none-eabi/10.3.1/include/stdbool.h \
+Build/nrf52832_xxaa/main.c.o: Source/main.c \
+ SDK/components/boards/boards.h SDK/modules/nrfx/hal/nrf_gpio.h \
+ SDK/modules/nrfx/nrfx.h SDK/integration/nrfx/nrfx_config.h \
+ SDK/config/sdk_config.h SDK/modules/nrfx/drivers/nrfx_common.h \
  /opt/tools/gcc-arm-none-eabi-10.3-2021.10/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h \
  /opt/tools/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/stdint.h \
  /opt/tools/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/machine/_default_types.h \
@@ -7,10 +9,8 @@ Build/nrf52832_xxaa/main.c.o: main.c \
  /opt/tools/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/_newlib_version.h \
  /opt/tools/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/sys/_intsup.h \
  /opt/tools/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/sys/_stdint.h \
- SDK/components/libraries/delay/nrf_delay.h SDK/modules/nrfx/nrfx.h \
- SDK/integration/nrfx/nrfx_config.h SDK/config/sdk_config.h \
- SDK/modules/nrfx/drivers/nrfx_common.h \
  /opt/tools/gcc-arm-none-eabi-10.3-2021.10/lib/gcc/arm-none-eabi/10.3.1/include/stddef.h \
+ /opt/tools/gcc-arm-none-eabi-10.3-2021.10/lib/gcc/arm-none-eabi/10.3.1/include/stdbool.h \
  SDK/modules/nrfx/mdk/nrf.h SDK/modules/nrfx/mdk/nrf52.h \
  SDK/components/toolchain/cmsis/include/core_cm4.h \
  SDK/components/toolchain/cmsis/include/cmsis_version.h \
@@ -58,9 +58,13 @@ Build/nrf52832_xxaa/main.c.o: main.c \
  SDK/modules/nrfx/soc/nrfx_coredep.h SDK/modules/nrfx/soc/nrfx_atomic.h \
  SDK/components/libraries/util/sdk_errors.h \
  SDK/components/libraries/util/sdk_resources.h \
- SDK/modules/nrfx/drivers/nrfx_errors.h SDK/components/boards/boards.h \
- SDK/modules/nrfx/hal/nrf_gpio.h SDK/components/boards/pca10040.h
-/opt/tools/gcc-arm-none-eabi-10.3-2021.10/lib/gcc/arm-none-eabi/10.3.1/include/stdbool.h:
+ SDK/modules/nrfx/drivers/nrfx_errors.h SDK/components/boards/pca10040.h
+SDK/components/boards/boards.h:
+SDK/modules/nrfx/hal/nrf_gpio.h:
+SDK/modules/nrfx/nrfx.h:
+SDK/integration/nrfx/nrfx_config.h:
+SDK/config/sdk_config.h:
+SDK/modules/nrfx/drivers/nrfx_common.h:
 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h:
 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/stdint.h:
 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/machine/_default_types.h:
@@ -68,12 +72,8 @@ Build/nrf52832_xxaa/main.c.o: main.c \
 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/_newlib_version.h:
 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/sys/_intsup.h:
 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/sys/_stdint.h:
-SDK/components/libraries/delay/nrf_delay.h:
-SDK/modules/nrfx/nrfx.h:
-SDK/integration/nrfx/nrfx_config.h:
-SDK/config/sdk_config.h:
-SDK/modules/nrfx/drivers/nrfx_common.h:
 /opt/tools/gcc-arm-none-eabi-10.3-2021.10/lib/gcc/arm-none-eabi/10.3.1/include/stddef.h:
+/opt/tools/gcc-arm-none-eabi-10.3-2021.10/lib/gcc/arm-none-eabi/10.3.1/include/stdbool.h:
 SDK/modules/nrfx/mdk/nrf.h:
 SDK/modules/nrfx/mdk/nrf52.h:
 SDK/components/toolchain/cmsis/include/core_cm4.h:
@@ -124,6 +124,4 @@ SDK/modules/nrfx/soc/nrfx_atomic.h:
 SDK/components/libraries/util/sdk_errors.h:
 SDK/components/libraries/util/sdk_resources.h:
 SDK/modules/nrfx/drivers/nrfx_errors.h:
-SDK/components/boards/boards.h:
-SDK/modules/nrfx/hal/nrf_gpio.h:
 SDK/components/boards/pca10040.h:
