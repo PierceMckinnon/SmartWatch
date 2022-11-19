@@ -7,3 +7,17 @@ https://infocenter.nordicsemi.com/index.jsp?topic=%2Fug_nrf_cltools%2FUG%2Fcltoo
 Need arm tool chain to compile. Unpack tar https://developer.arm.com/downloads/-/gnu-rm: 
 tar -xvf gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2
 https://infocenter.nordicsemi.com/index.jsp?topic=%2Fstruct_sdk%2Fstruct%2Fsdk_nrf5_latest.html
+
+Compiling and Running: 
+--Compile with: make
+--Run with: make flash
+--If the board gets reset we need to disable write protections with: make recover
+--Can recover and flash: make recover flash
+
+Issue on VM: 
+If the board gets reset, theres an issue with USB on VM + Windows setup, Windows USB driver will crash, need to reboot my machine. 
+
+
+
+
+
