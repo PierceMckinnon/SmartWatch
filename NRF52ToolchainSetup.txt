@@ -15,7 +15,7 @@ Compiling and Running:
 --Can recover and flash: make recover flash
 
 Issue on VM: 
-If the board gets reset, theres an issue with USB on VM + Windows setup, Windows USB driver will crash, need to reboot my machine. 
+If the board gets reset and you dont see it with: lsusb, then reboot the vm: sudo reboot 
 
 
 
