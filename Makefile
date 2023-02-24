@@ -1,9 +1,10 @@
 PROJECT_NAME     := Template
 TARGETS          := nrf52832_xxaa
-OUTPUT_DIRECTORY := Build
+OUTPUT_DIRECTORY := ../Build
 
 SDK_ROOT := ./SDK
 PROJ_DIR := ./Source
+EPAPER_ROOT := ./User
 
 $(OUTPUT_DIRECTORY)/nrf52832_xxaa.out: \
   LINKER_SCRIPT  := template_nrf52.ld
@@ -29,6 +30,25 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/soc/nrfx_atomic.c \
   $(PROJ_DIR)/main.c \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_spim.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_spi.c \
+  $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_spi.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
+  $(EPAPER_ROOT)/Config/DEV_Config.c\
+  $(EPAPER_ROOT)/e-Paper/EPD_1in54_V2.c\
+  $(EPAPER_ROOT)/Examples/EPD_1in54_V2_test.c\
+  $(EPAPER_ROOT)/Examples/ImageData.c\
+  $(EPAPER_ROOT)/GUI/GUI_Paint.c\
+  # $(EPAPER_ROOT)/Fonts/font8.c\
+  # $(EPAPER_ROOT)/Fonts/font12.c\
+  # $(EPAPER_ROOT)/Fonts/font12CN.c\
+  # $(EPAPER_ROOT)/Fonts/font16.c\
+  # $(EPAPER_ROOT)/Fonts/font20.c\
+  # $(EPAPER_ROOT)/Fonts/font24.c\
+  # $(EPAPER_ROOT)/Fonts/font24CN.c\
+
+
+
 
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -44,22 +64,30 @@ INC_FOLDERS += \
   $(SDK_ROOT)/modules/nrfx/hal \
   $(SDK_ROOT)/components/libraries/bsp \
   $(SDK_ROOT)/components/libraries/log \
-  $(SDK_ROOT)/modules/nrfx \
   $(SDK_ROOT)/components/libraries/experimental_section_vars \
   $(SDK_ROOT)/components/libraries/delay \
   $(SDK_ROOT)/integration/nrfx \
+  $(SDK_ROOT)/integration/nrfx/legacy \
+  $(SDK_ROOT)/modules/nrfx/drivers/include \
+  $(SDK_ROOT)/modules/nrfx/templates/nRF52832 \
+  $(SDK_ROOT)/modules/nrfx \
   $(SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd \
   $(SDK_ROOT)/components/libraries/atomic \
   $(SDK_ROOT)/components/boards \
   $(SDK_ROOT)/components/libraries/memobj \
   $(SDK_ROOT)/external/fprintf \
   $(SDK_ROOT)/components/libraries/log/src \
+  $(EPAPER_ROOT)/e-Paper \
+  $(EPAPER_ROOT)/Examples \
+  $(EPAPER_ROOT)/Config \
+  $(EPAPER_ROOT)/Fonts \
+  $(EPAPER_ROOT)/GUI \
 
 # Libraries common to all targets
 LIB_FILES += \
 
 # Optimization flags
-OPT = -O3 -g3
+OPT = -O1 -g3
 # Uncomment the line below to enable link time optimization
 #OPT += -flto
 
@@ -138,7 +166,7 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 
 # Take off special permissions
 recover: 
-	nrfjprog --recover
+	nrfjprog -f nrf52 --recover --log
 
 # Flash the program
 flash: default

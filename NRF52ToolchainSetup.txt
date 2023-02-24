@@ -17,7 +17,17 @@ Compiling and Running:
 Issue on VM: 
 If the board gets reset and you dont see it with: lsusb, then reboot the vm: sudo reboot 
 
+Need to configure regular gpio for output
+Dont connect clk line on LA
+Remote GDB:JLinkGDBServerCLExe -device nrf52832_xxaa -if swd -port 2331
+target remote localhost:2331
+load 
+mon reset 0 
+c
+file filename
+/opt/tools/gcc-arm-none-eabi-10.3-2021.10/bin/arm-none-eabi-gdb /home/insteadof2/Documents/SmartWatch/Build/nrf52832_xxaa.out
 
+file /home/insteadof2/Documents/SmartWatch/Build/nrf52832_xxaa.out
 
 
 
