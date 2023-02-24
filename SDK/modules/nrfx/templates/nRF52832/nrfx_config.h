@@ -741,6 +741,12 @@
 #define NRFX_PDM_CONFIG_EDGE 0
 #endif
 
+// <e> NRF_CLOCK_ENABLED - nrf_drv_clock - CLOCK peripheral driver - legacy layer
+//==========================================================
+#ifndef NRF_CLOCK_ENABLED
+#define NRF_CLOCK_ENABLED 1
+#endif
+
 // <o> NRFX_PDM_CONFIG_CLOCK_FREQ  - Clock frequency
 
 // <134217728=> 1000k

@@ -27,75 +27,80 @@
 # THE SOFTWARE.
 #
 ******************************************************************************/
-#include "EPD_Test.h"
 #include "EPD_1in54_V2.h"
+#include "EPD_Test.h"
 #include "nrf_delay.h"
 
-int EPD_test(void)
-{
-    printf("EPD_1in54_V2_test Demo\r\n");
-    DEV_Module_Init();
+int EPD_test(void) {
+  printf("EPD_1in54_V2_test Demo\r\n");
+  DEV_Module_Init();
 
-    printf("e-Paper Init and Clear...\r\n");
-    EPD_1IN54_V2_Init();
-    EPD_1IN54_V2_Clear();
-    nrf_delay_ms(4000);
+  printf("e-Paper Init and Clear...\r\n");
+  EPD_1IN54_V2_Init();
+  EPD_1IN54_V2_Clear();
+  nrf_delay_ms(4000);
 
-    //Create a new image cache
-    UBYTE *BlackImage;
-    /* you have to edit the startup_stm32fxxx.s file and set a big enough heap size */
-    UWORD Imagesize = ((EPD_1IN54_V2_WIDTH % 8 == 0)? (EPD_1IN54_V2_WIDTH / 8 ): (EPD_1IN54_V2_WIDTH / 8 + 1)) * EPD_1IN54_V2_HEIGHT;
-    if((BlackImage = (UBYTE *)malloc(Imagesize)) == NULL) {
-        printf("Failed to apply for black memory...\r\n");
-        return -1;
-    }
-    printf("Paint_NewImage\r\n");
-//     Paint_NewImage(BlackImage, EPD_1IN54_V2_WIDTH, EPD_1IN54_V2_HEIGHT, 270, WHITE);
-    Paint_NewImage(BlackImage, EPD_1IN54_V2_WIDTH, EPD_1IN54_V2_HEIGHT, 0, WHITE);
+  // Create a new image cache
+  UBYTE* BlackImage;
+  /* you have to edit the startup_stm32fxxx.s file and set a big enough heap
+   * size */
+  UWORD Imagesize =
+      ((EPD_1IN54_V2_WIDTH % 8 == 0) ? (EPD_1IN54_V2_WIDTH / 8)
+                                     : (EPD_1IN54_V2_WIDTH / 8 + 1)) *
+      EPD_1IN54_V2_HEIGHT;
+  if ((BlackImage = (UBYTE*)malloc(Imagesize)) == NULL) {
+    printf("Failed to apply for black memory...\r\n");
+    return -1;
+  }
+  printf("Paint_NewImage\r\n");
+  //     Paint_NewImage(BlackImage, EPD_1IN54_V2_WIDTH, EPD_1IN54_V2_HEIGHT,
+  //     270, WHITE);
+  Paint_NewImage(BlackImage, EPD_1IN54_V2_WIDTH, EPD_1IN54_V2_HEIGHT, 0, WHITE);
 
-// #if 1   //show image for array    
-//     printf("show image for array\r\n");
-//     Paint_SelectImage(BlackImage);
-//     Paint_Clear(WHITE);
-//     // Paint_DrawBitMap(gImage_1in54);
+  // #if 1   //show image for array
+  //     printf("show image for array\r\n");
+  //     Paint_SelectImage(BlackImage);
+  //     Paint_Clear(WHITE);
+  //     // Paint_DrawBitMap(gImage_1in54);
 
-//     EPD_1IN54_V2_Display(BlackImage);
-//     nrf_delay_ms(2000);
-// #endif
+  //     EPD_1IN54_V2_Display(BlackImage);
+  //     nrf_delay_ms(2000);
+  // #endif
 
-// #if 1   // Drawing on the image
-//     printf("Drawing\r\n");
-//     //1.Select Image
-//     Paint_SelectImage(BlackImage);
-//     Paint_Clear(WHITE);
+  // #if 1   // Drawing on the image
+  //     printf("Drawing\r\n");
+  //     //1.Select Image
+  //     Paint_SelectImage(BlackImage);
+  //     Paint_Clear(WHITE);
 
-//     // 2.Drawing on the image
-//     Paint_DrawPoint(5, 10, BLACK, DOT_PIXEL_1X1, DOT_STYLE_DFT);
-//     Paint_DrawPoint(5, 25, BLACK, DOT_PIXEL_2X2, DOT_STYLE_DFT);
-//     Paint_DrawPoint(5, 40, BLACK, DOT_PIXEL_3X3, DOT_STYLE_DFT);
-//     Paint_DrawPoint(5, 55, BLACK, DOT_PIXEL_4X4, DOT_STYLE_DFT);
+  //     // 2.Drawing on the image
+  //     Paint_DrawPoint(5, 10, BLACK, DOT_PIXEL_1X1, DOT_STYLE_DFT);
+  //     Paint_DrawPoint(5, 25, BLACK, DOT_PIXEL_2X2, DOT_STYLE_DFT);
+  //     Paint_DrawPoint(5, 40, BLACK, DOT_PIXEL_3X3, DOT_STYLE_DFT);
+  //     Paint_DrawPoint(5, 55, BLACK, DOT_PIXEL_4X4, DOT_STYLE_DFT);
 
-//     Paint_DrawLine(20, 10, 70, 60, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
-//     Paint_DrawLine(70, 10, 20, 60, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
-//     Paint_DrawLine(170, 15, 170, 55, BLACK, DOT_PIXEL_1X1, LINE_STYLE_DOTTED);
-//     Paint_DrawLine(150, 35, 190, 35, BLACK, DOT_PIXEL_1X1, LINE_STYLE_DOTTED);
+  //     Paint_DrawLine(20, 10, 70, 60, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
+  //     Paint_DrawLine(70, 10, 20, 60, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
+  //     Paint_DrawLine(170, 15, 170, 55, BLACK, DOT_PIXEL_1X1,
+  //     LINE_STYLE_DOTTED); Paint_DrawLine(150, 35, 190, 35, BLACK,
+  //     DOT_PIXEL_1X1, LINE_STYLE_DOTTED);
 
-    Paint_DrawRectangle(20, 10, 70, 60, BLACK, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
-    Paint_DrawRectangle(85, 10, 130, 60, BLACK, DOT_PIXEL_1X1, DRAW_FILL_FULL);
+  Paint_DrawRectangle(20, 10, 70, 60, BLACK, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
+  Paint_DrawRectangle(85, 10, 130, 60, BLACK, DOT_PIXEL_1X1, DRAW_FILL_FULL);
 
-    Paint_DrawCircle(170, 35, 20, BLACK, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
-    Paint_DrawCircle(170, 85, 20, BLACK, DOT_PIXEL_1X1, DRAW_FILL_FULL);
-    // Paint_DrawString_EN(5, 85, "waveshare", &Font20, BLACK, WHITE);
-    // Paint_DrawNum(5, 110, 123456789, &Font20, BLACK, WHITE);
+  Paint_DrawCircle(170, 35, 20, BLACK, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
+  Paint_DrawCircle(170, 85, 20, BLACK, DOT_PIXEL_1X1, DRAW_FILL_FULL);
+  // Paint_DrawString_EN(5, 85, "waveshare", &Font20, BLACK, WHITE);
+  // Paint_DrawNum(5, 110, 123456789, &Font20, BLACK, WHITE);
 
-    // Paint_DrawString_CN(5, 135,"���abc", &Font12CN, BLACK, WHITE);
-    // Paint_DrawString_CN(5, 155, "΢ѩ����", &Font24CN, WHITE, BLACK);
+  // Paint_DrawString_CN(5, 135,"���abc", &Font12CN, BLACK, WHITE);
+  // Paint_DrawString_CN(5, 155, "΢ѩ����", &Font24CN, WHITE, BLACK);
 
-    EPD_1IN54_V2_Display(BlackImage);
-    nrf_delay_ms(2000);
-// #endif
+  EPD_1IN54_V2_Display(BlackImage);
+  nrf_delay_ms(5000);
+  // #endif
 
-#if 0  //Partial refresh, example shows time    
+#if 0  // Partial refresh, example shows time    
 
     // The image of the previous frame must be uploaded, otherwise the
     // first few seconds will display an exception.
@@ -137,20 +142,19 @@ int EPD_test(void)
     }
 
 #endif
-    // while(1);
-    // printf("Clear...\r\n");
-    // EPD_1IN54_V2_Init();
-    // EPD_1IN54_V2_Clear();
+  // while(1);
+  // printf("Clear...\r\n");
+  EPD_1IN54_V2_Init();
+  EPD_1IN54_V2_Clear();
 
-    // printf("Goto Sleep...\r\n");
-    // EPD_1IN54_V2_Sleep();
-    // // free(BlackImage);
-    // // BlackImage = NULL;
+  // printf("Goto Sleep...\r\n");
+  EPD_1IN54_V2_Sleep();
+  free(BlackImage);
+  BlackImage = NULL;
 
-    // // // close 5V
-    // // printf("close 5V, Module enters 0 power consumption ...\r\n");
-    // DEV_Module_Exit();
-    
-    return 0;
+  // // // close 5V
+  // // printf("close 5V, Module enters 0 power consumption ...\r\n");
+  DEV_Module_Exit();
+
+  return 0;
 }
-

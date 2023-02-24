@@ -6,7 +6,7 @@
 *----------------
 * |	This version:   V1.0
 * | Date        :   2019-06-11
-* | Info        :   
+* | Info        :
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documnetation files (the "Software"), to deal
@@ -33,21 +33,20 @@
 #include "DEV_Config.h"
 
 // Display resolution
-#define EPD_1IN54_V2_WIDTH       200
-#define EPD_1IN54_V2_HEIGHT      200
+#define EPD_1IN54_V2_WIDTH 200
+#define EPD_1IN54_V2_HEIGHT 200
 
-typedef struct epdSpiPins_s
-{
- uint8_t sck;
- uint8_t mosi;
-}epdSpiPins_s;
+typedef struct epdSpiPins_s {
+  uint8_t sck;
+  uint8_t mosi;
+} epdSpiPins_s;
 
 void EPD_1IN54_V2_Init(void);
 void EPD_1IN54_V2_Init_Partial(void);
 void EPD_1IN54_V2_Clear(void);
-void EPD_1IN54_V2_Display(uint8_t *image);
-void EPD_1IN54_V2_DisplayPartBaseImage(uint8_t *image);
-void EPD_1IN54_V2_DisplayPart(uint8_t *image);
+void EPD_1IN54_V2_Display(uint8_t* image);
+void EPD_1IN54_V2_DisplayPartBaseImage(uint8_t* image);
+void EPD_1IN54_V2_DisplayPart(uint8_t* image);
 void EPD_1IN54_V2_Sleep(void);
 void EPD_INIT_SPI(epdSpiPins_s spiPins);
 void EPD_1IN54_V2_Cfg_GPIO();
