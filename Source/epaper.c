@@ -119,7 +119,7 @@ void epaperTesting(void) {
     Paint_Clear(WHITE);
   }
 
-  return 0;
+  // return 0;
 }
 
 void epaperSleep(void) {
@@ -204,7 +204,7 @@ void epaperUpdateDateTime(CalDateTime const* const dateTime,
                         BLACK, DOT_PIXEL_2X2, DRAW_FILL_EMPTY);
   }
   EpaperPartialCluster cluster = {epaperEntryTracker[epaperDateTime], Border};
-  epaperDisplay(epaperTryPartialRefresh, epaperText, &cluster);
+  epaperDisplay(epaperFullRefresh, epaperText, &cluster);
   epaperEntryTracker[epaperDateTime] = epaperMultiEntry;
 }
 

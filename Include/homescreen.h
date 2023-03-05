@@ -25,6 +25,7 @@ extern const ButtonHandlerSetup homescreenButtonHandlers;
 void homescreenHandleTopLeftPress(void);
 void homescreenHandleTopRightPress(void);
 void homescreenHandleBottomRightPress(void);
+void homescreenHandleBottomLeftPress(void);
 HomescreenStates_e homescreenGetState(void);
 void homeScreenDisplay(void);
 #endif

@@ -4,7 +4,7 @@
 const ButtonHandlerSetup homescreenButtonHandlers = {
     .topLeftButtonPress = homescreenHandleTopLeftPress,
     .topRightButtonPress = homescreenHandleTopRightPress,
-    .bottomLeftButtonPress = emptyFunction,
+    .bottomLeftButtonPress = homescreenHandleBottomLeftPress,
     .bottomRightButtonPress = homescreenHandleBottomRightPress};
 
 static HomescreenStates_e homescreenState = homescreenClock;
@@ -28,6 +28,10 @@ void homescreenHandleTopRightPress(void) {
 
 void homescreenHandleBottomRightPress(void) {
   homeScreenSelect();
+}
+
+void homescreenHandleBottomLeftPress(void) {
+  homeScreenDisplay();
 }
 
 static void homeScreenMoveUp(void) {
