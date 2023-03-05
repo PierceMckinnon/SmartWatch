@@ -38,5 +38,9 @@ How to Debug:
         file /home/insteadof2/Documents/SmartWatch/Build/nrf52832_xxaa.out
 
 
+ISR + RTOS: 
+If going to interrupt with an event, use the interrupt to give a mutex to signal a task to go. Keeps ISR short and works with RTOS schedule.
+
+
 
 

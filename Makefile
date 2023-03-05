@@ -4,7 +4,7 @@ OUTPUT_DIRECTORY := ../Build
 
 SDK_ROOT := ./SDK
 PROJ_DIR := ./Source
-EPAPER_ROOT := ./User
+EPAPER_ROOT := ./Epaper
 
 $(OUTPUT_DIRECTORY)/nrf52832_xxaa.out: \
   LINKER_SCRIPT  := nrf52_freertos.ld
@@ -46,25 +46,30 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/soc/nrfx_atomic.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_clock.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_timer.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_rtc.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp.c \
   $(PROJ_DIR)/main.c \
+  $(PROJ_DIR)/calendar.c \
+  $(PROJ_DIR)/homescreen.c \
+  $(PROJ_DIR)/epaper.c\
+  $(PROJ_DIR)/buttonconfig.c\
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c \
-   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_spim.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_spim.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_spi.c \
   $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_spi.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
-  $(EPAPER_ROOT)/Config/DEV_Config.c\
-  $(EPAPER_ROOT)/e-Paper/EPD_1in54_V2.c\
-  $(EPAPER_ROOT)/Examples/EPD_1in54_V2_test.c\
-  $(EPAPER_ROOT)/Examples/ImageData.c\
-  $(EPAPER_ROOT)/GUI/GUI_Paint.c\
-  # $(EPAPER_ROOT)/Fonts/font8.c\
-  # $(EPAPER_ROOT)/Fonts/font12.c\
-  # $(EPAPER_ROOT)/Fonts/font12CN.c\
-  # $(EPAPER_ROOT)/Fonts/font16.c\
-  # $(EPAPER_ROOT)/Fonts/font20.c\
-  # $(EPAPER_ROOT)/Fonts/font24.c\
-  # $(EPAPER_ROOT)/Fonts/font24CN.c\
+  $(EPAPER_ROOT)/DEV_Config.c\
+  $(EPAPER_ROOT)/EPD_1in54_V2.c\
+  $(EPAPER_ROOT)/bitmaps.c\
+  $(EPAPER_ROOT)/GUI_Paint.c\
+  $(EPAPER_ROOT)/Fonts/font8.c\
+  $(EPAPER_ROOT)/Fonts/font12.c\
+  $(EPAPER_ROOT)/Fonts/font16.c\
+  $(EPAPER_ROOT)/Fonts/font20.c\
+  $(EPAPER_ROOT)/Fonts/font24.c\
+  $(EPAPER_ROOT)/Fonts/font24wide.c\
+  $(EPAPER_ROOT)/Fonts/font40.c\
 
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -99,17 +104,15 @@ INC_FOLDERS += \
   $(SDK_ROOT)/modules/nrfx/drivers/include \
   $(SDK_ROOT)/external/fprintf \
   $(SDK_ROOT)/components/libraries/log/src \
-  $(EPAPER_ROOT)/e-Paper \
-  $(EPAPER_ROOT)/Examples \
-  $(EPAPER_ROOT)/Config \
+  $(EPAPER_ROOT)\
   $(EPAPER_ROOT)/Fonts \
-  $(EPAPER_ROOT)/GUI \
+
 
 # Libraries common to all targets
 LIB_FILES += \
 
 # Optimization flags
-OPT = -O3 -g3
+OPT =  -g3
 # Uncomment the line below to enable link time optimization
 #OPT += -flto
 
