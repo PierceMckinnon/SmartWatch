@@ -2,19 +2,19 @@
 #define _PIN_CONFIG_H_
 
 // Buttons
-#define BUTTONTOPRIGHT 24
-#define BUTTONTOPLEFT 5
-#define BUTTONBOTTOMLEFT 10
-#define BUTTONBOTTOMRIGHT 22
+#define BUTTONTOPRIGHT 4
+#define BUTTONTOPLEFT 26
+#define BUTTONBOTTOMLEFT 25
+#define BUTTONBOTTOMRIGHT 10
 
 // General SPI
-#define SPIMOSI 13
-#define SPICLK 11
+#define SPIMOSI 22
+#define SPICLK 24
 
 // Epaper Display
-#define EPAPERRST 27
-#define EPAPERDC 30
-#define EPAPERCS 3
-#define EPAPERBUSY 0
+#define EPAPERRST 12
+#define EPAPERDC 14
+#define EPAPERCS 15
+#define EPAPERBUSY 8
 
 #endif
