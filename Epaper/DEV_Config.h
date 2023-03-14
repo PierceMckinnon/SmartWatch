@@ -62,14 +62,6 @@
 #define UDOUBLE uint32_t
 
 /**
- * e-Paper GPIO
- **/
-#define EPD_RST_PIN 27
-#define EPD_DC_PIN 30
-#define EPD_CS_PIN 3
-#define EPD_BUSY_PIN 0
-
-/**
  * delay x ms
  **/
 // void DEV_SPI_WriteByte(UBYTE value);

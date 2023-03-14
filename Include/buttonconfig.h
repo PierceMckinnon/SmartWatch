@@ -3,12 +3,9 @@
 
 #include "main.h"
 
-#define BUTTONNUM 4
+#include "pinconfig.h"
 
-#define BUTTONTOPRIGHT 24
-#define BUTTONTOPLEFT 5
-#define BUTTONBOTTOMLEFT 10
-#define BUTTONBOTTOMRIGHT 22
+#define BUTTONNUM 4
 
 #define BUTTONTOPRIGHT_INDEX 0
 #define BUTTONTOPLEFT_INDEX 1

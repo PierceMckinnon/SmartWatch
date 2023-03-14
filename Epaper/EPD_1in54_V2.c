@@ -36,15 +36,17 @@
 #include "nrf_drv_spi.h"
 #include "nrf_gpio.h"
 
+#include "pinconfig.h"
+
 static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(0);
 nrf_drv_spi_config_t spi_config = NRF_DRV_SPI_DEFAULT_CONFIG;
 
 void EPD_1IN54_V2_Cfg_GPIO() {
-  nrf_gpio_cfg_output(EPD_CS_PIN);
-  nrf_gpio_cfg_output(EPD_RST_PIN);
-  nrf_gpio_cfg_output(EPD_DC_PIN);
+  nrf_gpio_cfg_output(EPAPERCS);
+  nrf_gpio_cfg_output(EPAPERRST);
+  nrf_gpio_cfg_output(EPAPERDC);
 
-  nrf_gpio_cfg_input(EPD_BUSY_PIN, NRF_GPIO_PIN_NOPULL);
+  nrf_gpio_cfg_input(EPAPERBUSY, NRF_GPIO_PIN_NOPULL);
 }
 
 void EPD_INIT_SPI(epdSpiPins_s spiPins) {
@@ -93,11 +95,11 @@ function :	Software reset
 parameter:
 ******************************************************************************/
 static void EPD_1IN54_V2_Reset(void) {
-  nrf_gpio_pin_write(EPD_RST_PIN, 1);
+  nrf_gpio_pin_write(EPAPERRST, 1);
   nrf_delay_ms(20);
-  nrf_gpio_pin_write(EPD_RST_PIN, 0);
+  nrf_gpio_pin_write(EPAPERRST, 0);
   nrf_delay_ms(5);
-  nrf_gpio_pin_write(EPD_RST_PIN, 1);
+  nrf_gpio_pin_write(EPAPERRST, 1);
   nrf_delay_ms(20);
 }
 
@@ -107,10 +109,10 @@ parameter:
      Reg : Command register
 ******************************************************************************/
 static void EPD_1IN54_V2_SendCommand(uint8_t Reg) {
-  nrf_gpio_pin_write(EPD_DC_PIN, 0);
-  nrf_gpio_pin_write(EPD_CS_PIN, 0);
+  nrf_gpio_pin_write(EPAPERDC, 0);
+  nrf_gpio_pin_write(EPAPERCS, 0);
   SPI_TRANSFER(&Reg);
-  nrf_gpio_pin_write(EPD_CS_PIN, 1);
+  nrf_gpio_pin_write(EPAPERCS, 1);
 }
 
 /******************************************************************************
@@ -119,10 +121,10 @@ parameter:
     Data : Write data
 ******************************************************************************/
 static void EPD_1IN54_V2_SendData(uint8_t Data) {
-  nrf_gpio_pin_write(EPD_DC_PIN, 1);
-  nrf_gpio_pin_write(EPD_CS_PIN, 0);
+  nrf_gpio_pin_write(EPAPERDC, 1);
+  nrf_gpio_pin_write(EPAPERCS, 0);
   SPI_TRANSFER(&Data);
-  nrf_gpio_pin_write(EPD_CS_PIN, 1);
+  nrf_gpio_pin_write(EPAPERCS, 1);
 }
 
 /******************************************************************************
@@ -130,7 +132,7 @@ function :	Wait until the busy_pin goes LOW
 parameter:
 ******************************************************************************/
 static void EPD_1IN54_V2_ReadBusy(void) {
-  while (nrf_gpio_pin_read(EPD_BUSY_PIN) == 1) {  // LOW: idle, HIGH: busy
+  while (nrf_gpio_pin_read(EPAPERBUSY) == 1) {  // LOW: idle, HIGH: busy
     nrf_delay_ms(100);
   }
   nrf_delay_ms(200);
@@ -458,9 +460,9 @@ void EPD_SetFrameMemoryPartial(const unsigned char* image_buffer,
   int x_end;
   int y_end;
 
-  nrf_gpio_pin_write(EPD_RST_PIN, 0);  // module reset
+  nrf_gpio_pin_write(EPAPERRST, 0);  // module reset
   nrf_delay_ms(2);
-  nrf_gpio_pin_write(EPD_RST_PIN, 1);
+  nrf_gpio_pin_write(EPAPERRST, 1);
   nrf_delay_ms(2);
 
   EPD_1IN54_V2_SetLut(WF_PARTIAL_1IN54_0);

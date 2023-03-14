@@ -32,17 +32,19 @@
 #include "DEV_Config.h"
 #include "nrf_gpio.h"
 
+#include "pinconfig.h"
+
 int DEV_Module_Init(void) {
-  nrf_gpio_pin_write(EPD_DC_PIN, 0);
-  nrf_gpio_pin_write(EPD_CS_PIN, 0);
-  nrf_gpio_pin_write(EPD_RST_PIN, 1);
+  nrf_gpio_pin_write(EPAPERDC, 0);
+  nrf_gpio_pin_write(EPAPERCS, 0);
+  nrf_gpio_pin_write(EPAPERRST, 1);
   return 0;
 }
 
 void DEV_Module_Exit(void) {
-  nrf_gpio_pin_write(EPD_DC_PIN, 0);
-  nrf_gpio_pin_write(EPD_CS_PIN, 0);
+  nrf_gpio_pin_write(EPAPERDC, 0);
+  nrf_gpio_pin_write(EPAPERCS, 0);
 
   // close 5V
-  nrf_gpio_pin_write(EPD_RST_PIN, 0);
+  nrf_gpio_pin_write(EPAPERRST, 0);
 }

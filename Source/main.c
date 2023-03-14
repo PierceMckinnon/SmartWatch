@@ -18,6 +18,7 @@
 #include "buttonconfig.h"
 #include "epaper.h"
 #include "homescreen.h"
+#include "pinconfig.h"
 #include "timerconfig.h"
 
 // SETUPS
@@ -144,7 +145,7 @@ static void setupButtonInterrupts(void) {
 
 static void setupEpaper(void) {
   EPD_1IN54_V2_Cfg_GPIO();
-  epdSpiPins_s spiPins = {.sck = 11, .mosi = 13};
+  epdSpiPins_s spiPins = {.sck = SPICLK, .mosi = SPIMOSI};
   EPD_INIT_SPI(spiPins);  // change once adding other spi devices
   epaperInit();
 }

@@ -44,7 +44,7 @@ void calUpdateMinute(DisplayDirective_e displayDirective) {
   } else {
     calDateTime.minute++;
   }
-  calUpdateRTCInt();
+
   __enable_irq();
   if (displayDirective == UpdateDisplay) {
     calDisplay();
