@@ -3,10 +3,12 @@
 
 #include "nrf_drv_timer.h"
 
-#define TIME_MS_EPD_INACTIVE 300000
+#define TIMER_MS_EPAPER_INACTIVE 300000
+#define TIMER_MS_BUTTON_INT_DELAY 500
 
 extern const nrf_drv_timer_t timerEpaperSleep;
 extern const nrf_drv_timer_t timerEpaperRefreshDelay;
+extern const nrf_drv_timer_t timerButtonIntDelay;
 
 static inline void timerEnableEpaperRefresh(uint32_t refreshDelayMs) {
   uint32_t time_ticks =

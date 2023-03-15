@@ -36,6 +36,7 @@ static void buttonBottomLeftPushedTask(void* pvParameter);
 static void buttonBottomRightPushedTask(void* pvParameter);
 static void epaperInactiveTimerTask(void* pvParameter);
 static void epaperRefreshDelayTask(void* pvParameter);
+static void buttonIntDelayTask(void* pvParameter);
 static void dateTimeRTCTask(void* pvParameter);
 // INT HANDLERS
 static void inputPinIntHandler(nrf_drv_gpiote_pin_t pin,
@@ -52,10 +53,12 @@ static const ButtonHandlerSetup* buttonHandlerFuncs[epaperStatesSize] = {
 static SemaphoreHandle_t buttonSemaphore[BUTTONNUM] = {NULL, NULL, NULL, NULL};
 static SemaphoreHandle_t epaperInactiveSemaphore = NULL;
 static SemaphoreHandle_t epaperRefreshDelaySemaphore = NULL;
+static SemaphoreHandle_t buttonIntDelaySemaphore = NULL;
 static SemaphoreHandle_t rtcSemaphore = NULL;
 
 const nrf_drv_timer_t timerEpaperSleep = NRF_DRV_TIMER_INSTANCE(0);
 const nrf_drv_timer_t timerEpaperRefreshDelay = NRF_DRV_TIMER_INSTANCE(1);
+const nrf_drv_timer_t timerButtonIntDelay = NRF_DRV_TIMER_INSTANCE(2);
 
 void vApplicationStackOverflowHook(TaskHandle_t* pxTask,
                                    signed char* pcTaskName) {
@@ -83,6 +86,7 @@ int main(void) {
   setupEpaper();
   setupTimers();
   setupRTC();
+
   // EPD_test();
   // while (1)
   //   ;
@@ -98,10 +102,16 @@ int main(void) {
               configMINIMAL_STACK_SIZE, (void*)NULL, 0, NULL);
   xTaskCreate(epaperRefreshDelayTask, "EpaperRefreshDelayTask",
               configMINIMAL_STACK_SIZE + 200, (void*)NULL, 1, NULL);
+  xTaskCreate(buttonIntDelayTask, "ButtonIntDelayTask",
+              configMINIMAL_STACK_SIZE, (void*)NULL, 1, NULL);
   xTaskCreate(dateTimeRTCTask, "RTCTask", configMINIMAL_STACK_SIZE + 200,
               (void*)NULL, 2, NULL);
 
   homeScreenDisplay();
+#ifdef PCB
+  nrf_gpio_cfg_output(SOCONLED);
+  nrf_gpio_pin_write(SOCONLED, 1);
+#endif
   // Activate
   buttonEnableInterrupts();
   enableTimers();
@@ -155,18 +165,24 @@ static void setupTimers(void) {
   uint32_t err_code =
       nrf_drv_timer_init(&timerEpaperSleep, &timerConfig, timerIntHandler);
   APP_ERROR_CHECK(err_code);
-  err_code = nrf_drv_timer_init(&timerEpaperRefreshDelay, &timerConfig,
-                                timerIntHandler);
-  APP_ERROR_CHECK(err_code);
-  vSemaphoreCreateBinary(epaperRefreshDelaySemaphore);
 
   uint32_t time_ticks =
-      nrf_drv_timer_ms_to_ticks(&timerEpaperSleep, TIME_MS_EPD_INACTIVE);
+      nrf_drv_timer_ms_to_ticks(&timerEpaperSleep, TIMER_MS_EPAPER_INACTIVE);
 
   nrf_drv_timer_extended_compare(&timerEpaperSleep, NRF_TIMER_CC_CHANNEL0,
                                  time_ticks, NRF_TIMER_SHORT_COMPARE0_STOP_MASK,
                                  true);
   vSemaphoreCreateBinary(epaperInactiveSemaphore);
+
+  err_code = nrf_drv_timer_init(&timerEpaperRefreshDelay, &timerConfig,
+                                timerIntHandler);
+  APP_ERROR_CHECK(err_code);
+  vSemaphoreCreateBinary(epaperRefreshDelaySemaphore);
+
+  err_code =
+      nrf_drv_timer_init(&timerButtonIntDelay, &timerConfig, timerIntHandler);
+  APP_ERROR_CHECK(err_code);
+  vSemaphoreCreateBinary(buttonIntDelaySemaphore);
 }
 
 static void setupRTC(void) {
@@ -256,6 +272,18 @@ static void epaperRefreshDelayTask(void* pvParameter) {
   }
 }
 
+static void buttonIntDelayTask(void* pvParameter) {
+  UNUSED_PARAMETER(pvParameter);
+  // dont block
+  xSemaphoreTake(buttonIntDelaySemaphore, 0);
+
+  while (true) {
+    xSemaphoreTake(buttonIntDelaySemaphore, portMAX_DELAY);
+    nrf_drv_timer_disable(&timerButtonIntDelay);  // change back
+    buttonEnableInterrupts();
+  }
+}
+
 static void dateTimeRTCTask(void* pvParameter) {
   UNUSED_PARAMETER(pvParameter);
 
@@ -272,6 +300,14 @@ static void dateTimeRTCTask(void* pvParameter) {
 // INTERUPT HANDLERS
 static void inputPinIntHandler(nrf_drv_gpiote_pin_t pin,
                                nrf_gpiote_polarity_t action) {
+  buttonDisableInterrupts();
+  uint32_t time_ticks = nrf_drv_timer_ms_to_ticks(&timerButtonIntDelay,
+                                                  TIMER_MS_BUTTON_INT_DELAY);
+  nrf_drv_timer_extended_compare(
+      &timerButtonIntDelay, NRF_TIMER_CC_CHANNEL2, time_ticks,
+      NRF_TIMER_SHORT_COMPARE2_STOP_MASK | NRF_TIMER_SHORT_COMPARE2_CLEAR_MASK,
+      true);
+  nrf_drv_timer_enable(&timerButtonIntDelay);
   isrGiveSemaphore(&(buttonSemaphore[buttonIndex((Buttons_e)pin)]));
 }
 
@@ -284,6 +320,9 @@ static void timerIntHandler(nrf_timer_event_t event_type, void* p_context) {
     case NRF_TIMER_EVENT_COMPARE1: {
       isrGiveSemaphore(&epaperRefreshDelaySemaphore);
       break;
+    }
+    case NRF_TIMER_EVENT_COMPARE2: {
+      isrGiveSemaphore(&buttonIntDelaySemaphore);
     }
     default:
       break;

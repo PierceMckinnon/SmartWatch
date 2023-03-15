@@ -36,7 +36,6 @@ static uint8_t* calGetVal(CalVariables_e item);
 static void calMoveHighlightRight(void);
 
 void calUpdateMinute(DisplayDirective_e displayDirective) {
-  __disable_irq();
   if (calDateTime.minute + 1 > MAX_MINUTE) {
     calDateTime.minute = MIN_MINUTE;
     if (calState == calNormalClock)
@@ -45,7 +44,6 @@ void calUpdateMinute(DisplayDirective_e displayDirective) {
     calDateTime.minute++;
   }
 
-  __enable_irq();
   if (displayDirective == UpdateDisplay) {
     calDisplay();
   }
