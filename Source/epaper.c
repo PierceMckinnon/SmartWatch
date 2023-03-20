@@ -2,6 +2,8 @@
 #include "epaper.h"
 #include "nrf_delay.h"
 
+#include "files.h"
+#include "nrf_drv_gpiote.h"
 #include "timerconfig.h"
 
 typedef struct EpaperPartialCluster {
@@ -27,7 +29,7 @@ typedef void (*epaperInitDisplay)(void);
 
 static const epaperInitDisplay epaperInitDisplayFunctions[epaperStatesSize] = {
     homeScreenDisplay, calDisplay, emptyFunction,
-    emptyFunction};  // should prob not be here
+    filesDisplay};  // should prob not be here
 static EpaperEntryCount_e epaperEntryTracker[epaperStatesSize] = {
     epaperFirstEntry, epaperFirstEntry, epaperFirstEntry, epaperFirstEntry};
 
@@ -282,4 +284,29 @@ void epaperWakeFromSleep(void) {
 
 EpaperMode_e epaperGetMode(void) {
   return epaperAwake;
+}
+
+uint8_t const* const epaperDisplayTextFile(uint8_t const* const textFile,
+                                           uint32_t fileLength) {
+  epaperState = epaperFileIO;
+  Paint_Clear(WHITE);
+  Paint_SetRotate(270);
+  Paint_DrawBitMap(Border);
+  // nrf_gpio_pin_write(SOCONLED, 1);
+  uint8_t const* const newTextLocation =
+      PaintDrawTextFile(textFile, fileLength, &Font16, WHITE, BLACK);
+
+  epaperDisplay(epaperFullRefresh, epaperText, NULL);
+  epaperEntryTracker[epaperHomeScreen] = epaperMultiEntry;
+
+  return newTextLocation;
+}
+
+void epaperDisplayError(uint32_t error) {
+  Paint_Clear(WHITE);
+  Paint_SetRotate(270);
+  Paint_DrawBitMap(Border);
+  Paint_DrawNum(50, 50, error, &Font20, WHITE, BLACK);
+  epaperDisplay(epaperFullRefresh, epaperText, NULL);
+  epaperEntryTracker[epaperHomeScreen] = epaperMultiEntry;
 }

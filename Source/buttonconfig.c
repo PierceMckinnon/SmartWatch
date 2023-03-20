@@ -3,6 +3,7 @@
 
 const Buttons_e buttonsPinList[BUTTONNUM] = {
     buttonTopRight, buttonTopLeft, buttonBottomLeft, buttonBottomRight};
+// const Buttons_e buttonsPinList[BUTTONNUM] = {buttonTopLeft};
 static int buttonInterruptsState = 0;
 
 uint8_t buttonIndex(Buttons_e button) {
@@ -28,6 +29,12 @@ uint8_t buttonIndex(Buttons_e button) {
       SWERROR_HANDLER();
   }
   return buttonIndex;
+}
+
+void buttonFirstEnableInterrupts(void) {
+  for (int i = 0; i < BUTTONNUM; i++) {
+    nrf_drv_gpiote_in_event_enable((int)buttonsPinList[i], true);
+  }
 }
 
 void buttonEnableInterrupts(void) {

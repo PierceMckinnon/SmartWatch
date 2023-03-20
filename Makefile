@@ -5,6 +5,7 @@ OUTPUT_DIRECTORY := ../Build
 SDK_ROOT := ./SDK
 PROJ_DIR := ./Source
 EPAPER_ROOT := ./Epaper
+DRIVERS_ROOT := ./Drivers
 
 $(OUTPUT_DIRECTORY)/nrf52832_xxaa.out: \
   LINKER_SCRIPT  := nrf52_freertos.ld
@@ -32,6 +33,8 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/util/app_error_weak.c \
   $(SDK_ROOT)/components/libraries/timer/app_timer_freertos.c \
   $(SDK_ROOT)/components/libraries/util/app_util_platform.c \
+  $(SDK_ROOT)/components/libraries/fifo/app_fifo.c \
+  $(SDK_ROOT)/components/libraries/uart/app_uart_fifo.c \
   $(SDK_ROOT)/components/libraries/util/nrf_assert.c \
   $(SDK_ROOT)/components/libraries/atomic/nrf_atomic.c \
   $(SDK_ROOT)/components/libraries/balloc/nrf_balloc.c \
@@ -49,16 +52,24 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_timer.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_rtc.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp.c \
+  $(DRIVERS_ROOT)/w25qxx.c \
   $(PROJ_DIR)/main.c \
   $(PROJ_DIR)/calendar.c \
   $(PROJ_DIR)/homescreen.c \
   $(PROJ_DIR)/epaper.c\
   $(PROJ_DIR)/buttonconfig.c\
+  $(PROJ_DIR)/files.c\
+  $(PROJ_DIR)/sendreceive.c\
+  $(PROJ_DIR)/spiconfig.c\
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_spim.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_spi.c \
   $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_spi.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
+  $(SDK_ROOT)/components/libraries/uart/retarget.c \
+  $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_uart.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uarte.c \
   $(EPAPER_ROOT)/DEV_Config.c\
   $(EPAPER_ROOT)/EPD_1in54_V2.c\
   $(EPAPER_ROOT)/bitmaps.c\
@@ -74,6 +85,7 @@ SRC_FILES += \
 # Include folders common to all targets
 INC_FOLDERS += \
   ./Include \
+  ./Drivers \
   $(SDK_ROOT)/components \
   $(SDK_ROOT)/modules/nrfx/mdk \
   $(PROJ_DIR) \
@@ -100,6 +112,8 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/atomic \
   $(SDK_ROOT)/components/boards \
   $(SDK_ROOT)/components/libraries/memobj \
+  $(SDK_ROOT)/components/libraries/uart \
+  $(SDK_ROOT)/components/libraries/fifo \
   $(SDK_ROOT)/external/freertos/portable/GCC/nrf52 \
   $(SDK_ROOT)/modules/nrfx/drivers/include \
   $(SDK_ROOT)/external/fprintf \
@@ -112,7 +126,7 @@ INC_FOLDERS += \
 LIB_FILES += \
 
 # Optimization flags
-OPT =  -g3
+OPT =  -O3 -g3
 # Uncomment the line below to enable link time optimization
 #OPT += -flto
 
@@ -133,6 +147,7 @@ CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin -fshort-enums
 CFLAGS += -D$(BUILDTYPE)
+CFLAGS += -DCONFIG_NFCT_PINS_AS_GPIOS #We connected to pin 10 so need this
 
 # C++ flags common to all targets
 CXXFLAGS += $(OPT)

@@ -55,5 +55,8 @@ void epaperUpdateDateTime(CalDateTime const* const dateTime,
                           const EpaperPrintPosition printPosition);
 void epaperExitCalendar(void);
 void epaperWakeFromSleep(void);
+uint8_t const* const epaperDisplayTextFile(uint8_t const* const textFile,
+                                           uint32_t fileLength);
+void epaperDisplayError(uint32_t error);
 
 #endif

@@ -809,3 +809,98 @@ void Paint_DrawString_EN(UWORD Xstart,
     Xpoint += Font->Width;
   }
 }
+
+uint8_t const* const PaintDrawTextFile(uint8_t const* const pTextFile,
+                                       uint32_t textLength,
+                                       sFONT* Font,
+                                       UWORD Color_Foreground,
+                                       UWORD Color_Background) {
+  const int startPointX = 10;
+  const int startPointY = 10;
+
+  uint32_t Xpoint = startPointX;
+  uint32_t Ypoint = startPointY;
+
+  typedef enum TextSearchState { normalState, newLineState } TextSearchState;
+  TextSearchState textSearchState = normalState;
+
+  uint8_t const* textFile = pTextFile;
+
+  for (uint32_t i = 0; i < textLength; i++) {
+    switch (textSearchState) {
+      case (normalState): {
+        if (*textFile == 0xD) {
+          textSearchState = newLineState;
+          textFile++;
+          break;
+        }
+
+        if ((Xpoint + Font->Width) > (Paint.Width - 10)) {
+          Xpoint = startPointX;
+          Ypoint += Font->Height;
+        }
+
+        if (Ypoint > (Paint.Height - (10 + Font->Height)))
+          return textFile;
+
+        Paint_DrawChar(Xpoint, Ypoint, *textFile, Font, Color_Background,
+                       Color_Foreground);
+        textFile++;
+        Xpoint += Font->Width;
+        break;
+      }
+      case (newLineState): {
+        if (*textFile != 0xA) {
+          while (1)
+            ;
+        } else {
+          Xpoint = startPointX;
+          Ypoint += Font->Height;
+          textFile++;
+          textSearchState = normalState;
+          break;
+        }
+      }
+      default: {
+        while (1)
+          ;
+      }
+    }
+  }
+  return textFile;
+}
+
+#define ARRAY_LEN 255
+void Paint_DrawNum(UWORD Xpoint,
+                   UWORD Ypoint,
+                   uint32_t Nummber,
+                   sFONT* Font,
+                   UWORD Color_Foreground,
+                   UWORD Color_Background) {
+  int16_t Num_Bit = 1, Str_Bit = 0;
+  uint8_t Str_Array[ARRAY_LEN] = {0}, Num_Array[ARRAY_LEN] = {0};
+  uint8_t* pStr = Str_Array;
+
+  if (Xpoint > Paint.Width || Ypoint > Paint.Height) {
+    return;
+  }
+
+  Num_Array[0] = '\0';
+  // Converts a number to a string
+  do {
+    Num_Array[Num_Bit] = (Nummber % 10) + '0';
+    Num_Bit++;
+    Nummber /= 10;
+  } while (Nummber);
+
+  // The string is inverted
+  while (Num_Bit > 0) {
+    Str_Array[Str_Bit] = Num_Array[Num_Bit - 1];
+    Str_Bit++;
+    Num_Bit--;
+  }
+
+  // show
+  Paint_DrawString_EN(Xpoint, Ypoint, (const char*)pStr, Font, Color_Background,
+                      Color_Foreground);
+}

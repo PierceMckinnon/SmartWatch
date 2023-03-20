@@ -1,5 +1,6 @@
 #include "epaper.h"
 #include "homescreen.h"
+#include "nrf_drv_gpiote.h"
 
 const ButtonHandlerSetup homescreenButtonHandlers = {
     .topLeftButtonPress = homescreenHandleTopLeftPress,
@@ -27,11 +28,14 @@ void homescreenHandleTopRightPress(void) {
 }
 
 void homescreenHandleBottomRightPress(void) {
-  homeScreenSelect();
+  homeScreenDisplay();
 }
 
 void homescreenHandleBottomLeftPress(void) {
-  homeScreenDisplay();
+  // static int x = 1;
+  // nrf_gpio_pin_write(SOCONLED, x);
+  homeScreenSelect();
+  // x ^= 1;
 }
 
 static void homeScreenMoveUp(void) {

@@ -4,7 +4,7 @@
 #include "nrf_drv_timer.h"
 
 #define TIMER_MS_EPAPER_INACTIVE 300000
-#define TIMER_MS_BUTTON_INT_DELAY 500
+#define TIMER_MS_BUTTON_INT_DELAY 1000
 
 extern const nrf_drv_timer_t timerEpaperSleep;
 extern const nrf_drv_timer_t timerEpaperRefreshDelay;

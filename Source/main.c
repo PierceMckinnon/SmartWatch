@@ -17,9 +17,13 @@
 #include "EPD_1in54_V2.h"
 #include "buttonconfig.h"
 #include "epaper.h"
+#include "files.h"
 #include "homescreen.h"
 #include "pinconfig.h"
+#include "sendreceive.h"
+#include "spiconfig.h"
 #include "timerconfig.h"
+#include "w25qxx.h"
 
 // SETUPS
 static void setupGlobal(void);
@@ -27,6 +31,7 @@ static void setupButtonInterrupts(void);
 static void setupEpaper(void);
 static void setupTimers(void);
 static void setupRTC(void);
+static void setupSPI(void);
 // ENABLES
 static void enableTimers(void);
 // TASKS
@@ -38,6 +43,7 @@ static void epaperInactiveTimerTask(void* pvParameter);
 static void epaperRefreshDelayTask(void* pvParameter);
 static void buttonIntDelayTask(void* pvParameter);
 static void dateTimeRTCTask(void* pvParameter);
+static void fileUartTask(void* pvParameter);
 // INT HANDLERS
 static void inputPinIntHandler(nrf_drv_gpiote_pin_t pin,
                                nrf_gpiote_polarity_t action);
@@ -50,7 +56,7 @@ static void isrGiveSemaphore(SemaphoreHandle_t* semaphore);
 static const ButtonHandlerSetup* buttonHandlerFuncs[epaperStatesSize] = {
     &homescreenButtonHandlers, &calButtonHandlers, NULL, NULL};
 
-static SemaphoreHandle_t buttonSemaphore[BUTTONNUM] = {NULL, NULL, NULL, NULL};
+static SemaphoreHandle_t buttonSemaphore[BUTTONNUM] = {};
 static SemaphoreHandle_t epaperInactiveSemaphore = NULL;
 static SemaphoreHandle_t epaperRefreshDelaySemaphore = NULL;
 static SemaphoreHandle_t buttonIntDelaySemaphore = NULL;
@@ -81,15 +87,17 @@ void vApplicationIdleHook(void) {
 }
 
 int main(void) {
+#ifdef PCB
+  nrf_gpio_cfg_output(SOCONLED);
+#endif
+
   setupGlobal();
+  setupSPI();
   setupButtonInterrupts();
   setupEpaper();
   setupTimers();
   setupRTC();
 
-  // EPD_test();
-  // while (1)
-  //   ;
   xTaskCreate(buttonTopRightPushedTask, "ButtonTopRightTask",
               configMINIMAL_STACK_SIZE + 100, (void*)NULL, 1, NULL);
   xTaskCreate(buttonTopLeftPushedTask, "ButtonTopLeftTask",
@@ -104,16 +112,17 @@ int main(void) {
               configMINIMAL_STACK_SIZE + 200, (void*)NULL, 1, NULL);
   xTaskCreate(buttonIntDelayTask, "ButtonIntDelayTask",
               configMINIMAL_STACK_SIZE, (void*)NULL, 1, NULL);
+  xTaskCreate(fileUartTask, "fileUartTask", configMINIMAL_STACK_SIZE,
+              (void*)NULL, 1, NULL);
   xTaskCreate(dateTimeRTCTask, "RTCTask", configMINIMAL_STACK_SIZE + 200,
               (void*)NULL, 2, NULL);
 
   homeScreenDisplay();
-#ifdef PCB
-  nrf_gpio_cfg_output(SOCONLED);
-  nrf_gpio_pin_write(SOCONLED, 1);
-#endif
+
+  sendreceiveInit();
+
   // Activate
-  buttonEnableInterrupts();
+  buttonFirstEnableInterrupts();
   enableTimers();
 
   /* Activate deep sleep mode */
@@ -137,6 +146,12 @@ static void setupGlobal(void) {
   // bsp_board_init(BSP_INIT_LEDS);
 }
 
+static void setupSPI(void) {
+  spiInitAll();
+  EPD_1IN54_V2_SET_SPI();
+  W25qxx_Set_Spi();
+}
+
 static void setupButtonInterrupts(void) {
   // initalize buttons
   ret_code_t err_code;
@@ -154,9 +169,7 @@ static void setupButtonInterrupts(void) {
 }
 
 static void setupEpaper(void) {
-  EPD_1IN54_V2_Cfg_GPIO();
-  epdSpiPins_s spiPins = {.sck = SPICLK, .mosi = SPIMOSI};
-  EPD_INIT_SPI(spiPins);  // change once adding other spi devices
+  EPD_1IN54_V2_CFG_GPIO();
   epaperInit();
 }
 
@@ -221,6 +234,7 @@ static void buttonTopLeftPushedTask(void* pvParameter) {
 
   while (true) {
     xSemaphoreTake(buttonSemaphore[buttonInd], portMAX_DELAY);
+    // filesDisplay();
     handleButtonPress(buttonTopLeftPress);
   }
 }
@@ -290,16 +304,24 @@ static void dateTimeRTCTask(void* pvParameter) {
   xSemaphoreTake(rtcSemaphore, 0);
   while (true) {
     xSemaphoreTake(rtcSemaphore, portMAX_DELAY);
-    calUpdateMinute(
-        ((epaperGetState() == epaperDateTime) && epaperGetBlockState())
-            ? UpdateDisplay
-            : NoAction);
+  }
+}
+
+static void fileUartTask(void* pvParameter) {
+  UNUSED_PARAMETER(pvParameter);
+  const TickType_t filesUartCheckRate = pdMS_TO_TICKS(1000);
+
+  while (true) {
+    vTaskDelay(filesUartCheckRate);
+    filesEmptyTheBuffer();
   }
 }
 
 // INTERUPT HANDLERS
 static void inputPinIntHandler(nrf_drv_gpiote_pin_t pin,
                                nrf_gpiote_polarity_t action) {
+  if (action != NRF_GPIOTE_POLARITY_LOTOHI)
+    return;
   buttonDisableInterrupts();
   uint32_t time_ticks = nrf_drv_timer_ms_to_ticks(&timerButtonIntDelay,
                                                   TIMER_MS_BUTTON_INT_DELAY);
@@ -307,6 +329,13 @@ static void inputPinIntHandler(nrf_drv_gpiote_pin_t pin,
       &timerButtonIntDelay, NRF_TIMER_CC_CHANNEL2, time_ticks,
       NRF_TIMER_SHORT_COMPARE2_STOP_MASK | NRF_TIMER_SHORT_COMPARE2_CLEAR_MASK,
       true);
+  // for (uint32_t i = 0; i < 250; i++) {
+  //   if (0 == nrf_gpio_pin_read(pin)) {
+  //     nrf_drv_timer_enable(&timerButtonIntDelay);
+  //     return;
+  //   }
+  //   nrf_delay_ms(5);
+  // }
   nrf_drv_timer_enable(&timerButtonIntDelay);
   isrGiveSemaphore(&(buttonSemaphore[buttonIndex((Buttons_e)pin)]));
 }

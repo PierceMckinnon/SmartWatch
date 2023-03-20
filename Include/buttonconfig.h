@@ -27,6 +27,7 @@ typedef enum ButtonTypePresses_e {
 } ButtonTypePresses_e;
 
 uint8_t buttonIndex(Buttons_e button);
+void buttonFirstEnableInterrupts(void);
 void buttonEnableInterrupts(void);
 void buttonDisableInterrupts(void);
 Buttons_e getButtonPinAtIndex(uint8_t buttonIndex);

@@ -39,8 +39,18 @@ How to Debug:
 
 
 ISR + RTOS: 
-If going to interrupt with an event, use the interrupt to give a mutex to signal a task to go. Keeps ISR short and works with RTOS schedule.
+If going to interrupt with an event, use the interrupt to give a mutex to signal a task to go. Keeps ISR short and works with RTOS schedule.\
 
+/opt/openocd/bin/openocd -f interface/stlink.cfg -f target/nrf52.cfg
+
+
+telnet 127.0.0.1 4444
+
+init
+
+halt;nrf5 mass_erase
+
+program /home/insteadof2/Documents/SmartWatch/Build/nrf52832_xxaa.out verify reset
 
 
 

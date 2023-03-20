@@ -27,21 +27,18 @@
 # THE SOFTWARE.
 #
 ******************************************************************************/
-#define SPI_TRANSFER(buffer) \
-  nrf_drv_spi_transfer(&spi, buffer, sizeof(uint8_t), NULL, 0)
 
 #include "EPD_1in54_V2.h"
 #include "app_error.h"
 #include "nrf_delay.h"
-#include "nrf_drv_spi.h"
 #include "nrf_gpio.h"
 
 #include "pinconfig.h"
+#include "spiconfig.h"
 
-static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(0);
-nrf_drv_spi_config_t spi_config = NRF_DRV_SPI_DEFAULT_CONFIG;
+static nrf_drv_spi_t const* spi;
 
-void EPD_1IN54_V2_Cfg_GPIO() {
+void EPD_1IN54_V2_CFG_GPIO(void) {
   nrf_gpio_cfg_output(EPAPERCS);
   nrf_gpio_cfg_output(EPAPERRST);
   nrf_gpio_cfg_output(EPAPERDC);
@@ -49,14 +46,9 @@ void EPD_1IN54_V2_Cfg_GPIO() {
   nrf_gpio_cfg_input(EPAPERBUSY, NRF_GPIO_PIN_NOPULL);
 }
 
-void EPD_INIT_SPI(epdSpiPins_s spiPins) {
-  spi_config.ss_pin = NRF_DRV_SPI_PIN_NOT_USED;
-  spi_config.sck_pin = spiPins.sck;
-  spi_config.mosi_pin = spiPins.mosi;
-  spi_config.frequency = NRF_SPI_FREQ_500K;
-  APP_ERROR_CHECK(nrf_drv_spi_init(&spi, &spi_config, NULL, NULL));
+void EPD_1IN54_V2_SET_SPI(void) {
+  spi = spiGetDrvConfig(spiEpaper);
 }
-
 // waveform full refresh
 unsigned char WF_Full_1IN54[159] = {
     0x80, 0x48, 0x40, 0x0,  0x0,  0x0,  0x0,  0x0, 0x0, 0x0, 0x0,  0x0,  0x40,
@@ -111,7 +103,7 @@ parameter:
 static void EPD_1IN54_V2_SendCommand(uint8_t Reg) {
   nrf_gpio_pin_write(EPAPERDC, 0);
   nrf_gpio_pin_write(EPAPERCS, 0);
-  SPI_TRANSFER(&Reg);
+  SPI_TRANSFER(spi, &Reg, sizeof(Reg));
   nrf_gpio_pin_write(EPAPERCS, 1);
 }
 
@@ -123,7 +115,7 @@ parameter:
 static void EPD_1IN54_V2_SendData(uint8_t Data) {
   nrf_gpio_pin_write(EPAPERDC, 1);
   nrf_gpio_pin_write(EPAPERCS, 0);
-  SPI_TRANSFER(&Data);
+  SPI_TRANSFER(spi, &Data, sizeof(Data));
   nrf_gpio_pin_write(EPAPERCS, 1);
 }
 

@@ -1,4 +1,5 @@
 #include "calendar.h"
+#include "nrf_gpio.h"
 
 const ButtonHandlerSetup calButtonHandlers = {
     .topLeftButtonPress = calHandleTopLeftPress,
@@ -14,12 +15,10 @@ static CalDateTime calDateTime = {31, 12, 99, 23, 59};
 static CalStates_e calState = calUninitialized;
 static CalVariables_e calVariableHighlight = calClear;
 
-const EpaperPrintPosition calDisplayLocations[calClear] = {
-    {.x = DAYX, .y = DATEY},
-    {.x = MONTHX, .y = DATEY},
-    {.x = YEARX, .y = DATEY},
-    {.x = HOURX, .y = TIMEY},
-    {.x = MINUTEX, .y = TIMEY}};
+const EpaperPrintPosition calDisplayLocations[calClear + 1] = {
+    {.x = DAYX, .y = DATEY},    {.x = MONTHX, .y = DATEY},
+    {.x = YEARX, .y = DATEY},   {.x = HOURX, .y = TIMEY},
+    {.x = MINUTEX, .y = TIMEY}, {.x = 0, .y = 0}};
 
 static void calUpdateHour();
 static void calUpdateDay();
@@ -134,8 +133,10 @@ void calHandleTopLeftPress(void) {
       calExitEditing();
       break;
     }
-    default:
+    default: {
+      nrf_gpio_pin_write(SOCONLED, 1);
       SWERROR_HANDLER();
+    }
   }
 }
 
@@ -148,8 +149,10 @@ void calHandleTopRightPress() {
       calMoveHighlightRight();
       break;
     }
-    default:
+    default: {
+      nrf_gpio_pin_write(SOCONLED, 1);
       SWERROR_HANDLER();
+    }
   }
 }
 
@@ -162,8 +165,10 @@ void calHandleBottomRightPress(void) {
       calIncrementHighlight();
       break;
     }
-    default:
+    default: {
+      nrf_gpio_pin_write(SOCONLED, 1);
       SWERROR_HANDLER();
+    }
   }
 }
 
@@ -178,8 +183,10 @@ void calHandleBottomLeftPress(void) {
       calDecrementHighlight();
       break;
     }
-    default:
+    default: {
+      nrf_gpio_pin_write(SOCONLED, 1);
       SWERROR_HANDLER();
+    }
   }
 }
 

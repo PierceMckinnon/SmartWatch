@@ -36,11 +36,6 @@
 #define EPD_1IN54_V2_WIDTH 200
 #define EPD_1IN54_V2_HEIGHT 200
 
-typedef struct epdSpiPins_s {
-  uint8_t sck;
-  uint8_t mosi;
-} epdSpiPins_s;
-
 void EPD_1IN54_V2_Text_Init(void);
 void EPD_1IN54_V2_BMP_Init(void);
 void EPD_1IN54_V2_Init_Partial(void);
@@ -49,8 +44,8 @@ void EPD_1IN54_V2_Display(const uint8_t* image);
 void EPD_1IN54_V2_DisplayPartBaseImage(uint8_t* image);
 void EPD_1IN54_V2_DisplayPart(uint8_t* image);
 void EPD_1IN54_V2_Sleep(void);
-void EPD_INIT_SPI(epdSpiPins_s spiPins);
-void EPD_1IN54_V2_Cfg_GPIO();
+void EPD_1IN54_V2_CFG_GPIO();
+void EPD_1IN54_V2_SET_SPI(void);
 
 void EPD_SetFrameMemoryPartial(const unsigned char* image_buffer,
                                int x,
