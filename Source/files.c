@@ -5,6 +5,11 @@
 #include "nrf_gpio.h"
 #include "sendreceive.h"
 #include "w25qxx.h"
+
+typedef enum filesType_e { filesText, filesMusic, filesTypeSize } filesType_e;
+
+static filesType_e fileType;
+
 // Homescreeen Presses
 static void filesHomescreenHandleTopRightPress(void);
 static void filesHomescreenHandleBottomRightPress(void);
@@ -88,7 +93,11 @@ const EpaperPrintPosition
 
 const EpaperPrintPosition filesUartPrintPosition = {.x = UARTX, .y = UARTY};
 
-static const char* mainFolderName = "/MainFolder";
+static char const* const mainFolderName = "/MainFolder";
+static char const* const musicFolderName = "/MusicFolder";
+
+static char const* const filesPathList[filesTypeSize] = {mainFolderName,
+                                                         musicFolderName};
 
 // LITTLEFS
 //  variables used by the filesystem
@@ -146,7 +155,8 @@ const struct lfs_config lfsConfig = {
 
 void filesFSInit(void) {
   filesFSMount();
-  lfs_mkdir(&lfs, mainFolderName);
+  lfs_mkdir(&lfs, filesPathList[filesText]);
+  lfs_mkdir(&lfs, filesPathList[filesMusic]);
 }
 
 static void filesFSMount(void) {
@@ -166,7 +176,8 @@ static void filesFSMount(void) {
 
 char fileNameBuf[FILESMAXTITLESIZE * 2];
 void filesFileOpenForWrite(char const* title) {
-  snprintf(fileNameBuf, sizeof(fileNameBuf), "%s/%s", mainFolderName, title);
+  snprintf(fileNameBuf, sizeof(fileNameBuf), "%s/%s", filesPathList[fileType],
+           title);
   int err = lfs_file_open(&lfs, &file, fileNameBuf, LFS_O_RDWR | LFS_O_CREAT);
   if (err) {
     filesDisplayErrorTesting("OPEN", err);
@@ -254,7 +265,14 @@ void filesFileClose(void) {
 //     0x75, 0x6C, 0x64, 0x20, 0x63, 0x61, 0x74, 0x63, 0x68, 0x20, 0x75,
 //     0x70, 0x2E, 0x20, 0x0D, 0x0A};
 
+void musicDisplay() {
+  fileType = filesMusic;
+  epaperDisplayFiles(
+      &filesStates,
+      &(filesHomescreenDisplayLocations[filesStates.filesHomescreenState]));
+}
 void filesDisplay(void) {
+  fileType = filesText;
   epaperDisplayFiles(
       &filesStates,
       &(filesHomescreenDisplayLocations[filesStates.filesHomescreenState]));
@@ -434,8 +452,10 @@ static void filesDirectoryTitleTopRightPress(void) {
 }
 // select
 static void filesDirectoryTitleBottomRightPress(void) {
-  filesStates.filesDirectoryState = filesDirectoryText;
-  filesDisplayDirectoryText();
+  if (fileType == filesText) {
+    filesStates.filesDirectoryState = filesDirectoryText;
+    filesDisplayDirectoryText();
+  }
 }
 // exit
 static int32_t filesDirectoryOffset = 2;
@@ -506,7 +526,7 @@ static void filesDisplayDirectoryFilenames(
   FilesDirectoryHighlight_e tempHighlight =
       filesHandleHighlightChange(highlightDirection);
 
-  lfs_dir_open(&lfs, &dir, mainFolderName);
+  lfs_dir_open(&lfs, &dir, filesPathList[fileType]);
   // dir.pos = filesDirectoryOffset;
   lfs_dir_seek(&lfs, &dir, filesDirectoryOffset);
   // for (uint32_t i = 0; i < 6; i++) {
@@ -542,7 +562,7 @@ static void filesDisplayDirectoryFilenamesPageUp(void) {
 static void filesDisplayDirectoryFilenamesPageDown(void) {
   uint32_t tempOffset = filesDirectoryOffset;
 
-  lfs_dir_open(&lfs, &dir, mainFolderName);
+  lfs_dir_open(&lfs, &dir, filesPathList[fileType]);
   tempOffset += DIRNUMTITLES;
   // dir.pos = tempOffset;
 
@@ -584,10 +604,11 @@ static uint32_t nextOffset = 0;
 static uint32_t fileSize = 0;
 static void filesDisplayDirectoryText(void) {
   // get file from offset + highlight
-  lfs_dir_open(&lfs, &dir, mainFolderName);
+  lfs_dir_open(&lfs, &dir, filesPathList[fileType]);
   lfs_dir_seek(&lfs, &dir, filesDirectoryOffset + filesDirectoryHighlight);
   lfs_dir_read(&lfs, &dir, &info);
-  snprintf(filePathBuffer, sizeof(filePathBuffer), "/MainFolder/%s", info.name);
+  snprintf(filePathBuffer, sizeof(filePathBuffer), "%s/%s",
+           filesPathList[fileType], info.name);
   fileSize = info.size;
   lfs_dir_close(&lfs, &dir);
   filesTextFileDisplay();

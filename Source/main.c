@@ -55,7 +55,8 @@ static void handleButtonPress(ButtonTypePresses_e buttonPressed);
 static void isrGiveSemaphore(SemaphoreHandle_t* semaphore);
 
 static const ButtonHandlerSetup* buttonHandlerFuncs[epaperStatesSize] = {
-    &homescreenButtonHandlers, &calButtonHandlers, NULL, &filesButtonHandlers};
+    &homescreenButtonHandlers, &calButtonHandlers, &filesButtonHandlers,
+    &filesButtonHandlers};
 
 static SemaphoreHandle_t buttonSemaphore[BUTTONNUM] = {};
 static SemaphoreHandle_t epaperInactiveSemaphore = NULL;

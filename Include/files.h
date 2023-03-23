@@ -77,6 +77,7 @@ void filesHandleTopRightPress(void);
 void filesHandleBottomLeftPress(void);
 void filesHandleBottomRightPress(void);
 
+void musicDisplay(void);
 void filesDisplay(void);
 void filesDisplayLength(uint32_t textLength);
 // void filesEmptyTheBuffer(void);

@@ -40,7 +40,7 @@ static char const* const epaperDisplayTextFile(char const* const textFile,
 typedef void (*epaperInitDisplay)(void);
 
 static const epaperInitDisplay epaperInitDisplayFunctions[epaperStatesSize] = {
-    homeScreenDisplay, calDisplay, emptyFunction,
+    homeScreenDisplay, calDisplay, musicDisplay,
     filesDisplay};  // should prob not be here
 static EpaperEntryCount_e epaperEntryTracker[epaperStatesSize] = {
     epaperFirstEntry, epaperFirstEntry, epaperFirstEntry, epaperFirstEntry};
@@ -241,9 +241,9 @@ void epaperDisplayHomescreen(const EpaperPrintPosition printPosition) {
 }
 
 void epaperDisplayHomscreenSelect(HomescreenStates_e homescreenState) {
-  EpaperState_e state = epaperStateFromHomescreen(homescreenState);
-  epaperEntryTracker[state] = epaperFirstEntry;
-  (*(epaperInitDisplayFunctions[state]))();
+  epaperState = epaperStateFromHomescreen(homescreenState);
+  epaperEntryTracker[epaperState] = epaperFirstEntry;
+  (*(epaperInitDisplayFunctions[epaperState]))();
 }
 
 // static void epaperDisableDisplayChangeSources(void) {
@@ -319,7 +319,7 @@ void epaperDisplayError(uint32_t error) {
 
 void epaperDisplayFiles(FilesStatesTracker const* const filesState,
                         EpaperPrintPosition const* const printPosition) {
-  epaperState = epaperFileIO;
+  // epaperState = epaperFileIO;
   switch (filesState->filesGlobalState) {
     case (filesGlobalHomescreen): {
       epaperDisplayFilesHomescreen(filesState->filesHomescreenState,

@@ -89,7 +89,7 @@ void sendReceiveStartUart(void) {
   sendreceiveState = sendreceiveInit;
   buttonDisableInterrupts();
   filesDisplayUartProcessing();
-  app_uart_init(&uartParams, &buffers, uartHandler, APP_IRQ_PRIORITY_MID);
+  app_uart_init(&uartParams, &buffers, uartHandler, APP_IRQ_PRIORITY_HIGHEST);
   timerEnableUart();
 }
 
