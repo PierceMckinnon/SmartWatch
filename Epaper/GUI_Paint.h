@@ -243,7 +243,7 @@ void Paint_DrawChar(UWORD Xstart,
 // Color_Foreground, UWORD Color_Background); // Able to display decimals void
 void Paint_DrawNum(UWORD Xpoint,
                    UWORD Ypoint,
-                   uint32_t Nummber,
+                   int32_t Nummber,
                    sFONT* Font,
                    UWORD Color_Foreground,
                    UWORD Color_Background);
@@ -278,9 +278,9 @@ void Paint_DrawString_EN(UWORD Xstart,
                          UWORD Color_Foreground,
                          UWORD Color_Background);
 
-uint8_t const* const PaintDrawTextFile(uint8_t const* const pTextFile,
-                                       uint32_t textLength,
-                                       sFONT* Font,
-                                       UWORD Color_Foreground,
-                                       UWORD Color_Background);
+char const* const PaintDrawTextFile(char const* const pTextFile,
+                                    uint32_t textLength,
+                                    sFONT* Font,
+                                    UWORD Color_Foreground,
+                                    UWORD Color_Background);
 #endif

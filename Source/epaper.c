@@ -1,8 +1,6 @@
 #include "EPD_1in54_V2.h"
 #include "epaper.h"
 #include "nrf_delay.h"
-
-#include "files.h"
 #include "nrf_drv_gpiote.h"
 #include "timerconfig.h"
 
@@ -11,7 +9,7 @@ typedef struct EpaperPartialCluster {
   const unsigned char* epaperBaseBitmap;
 } EpaperPartialCluster;
 
-static void epaperDisableDisplayChangeSources(void);
+// static void epaperDisableDisplayChangeSources(void);
 // static EpaperOptions_e epaperRefreshFromEntry(void);
 static EpaperState_e epaperStateFromHomescreen(
     HomescreenStates_e homescreenState);
@@ -24,6 +22,20 @@ static void epaperDisplay(EpaperOptions_e refreshType,
                           EpaperSetupType_e epaperSetupType,
                           EpaperPartialCluster* const cluster);
 static void epaperDisplayPartial(void);
+
+static void epaperDisplayFilesHomescreen(
+    const FilesHomescreenStates_e homescreenState,
+    EpaperPrintPosition const* const printPosition);
+static void epaperDisplayFilesUpload(
+    const FilesUploadingStates_e uploadState,
+    EpaperPrintPosition const* const printPosition);
+static void epaperDisplayFilesDirectory(
+    const FilesDirectoryStates_e directoryState,
+    EpaperPrintPosition const* const printPosition);
+static void epaperDisplayFilesDirectoryFilenames(void);
+static void epaperDisplayFilesDirectoryTextFile(void);
+static char const* const epaperDisplayTextFile(char const* const textFile,
+                                               uint32_t fileLength);
 
 typedef void (*epaperInitDisplay)(void);
 
@@ -40,7 +52,7 @@ void epaperInit(void) {
   Paint_Clear(WHITE);
   epaperTurnOnDisplay(epaperBitmap);
   EPD_1IN54_V2_Clear();
-  nrf_delay_ms(1000);
+  nrf_delay_ms(500);
 }
 
 void epaperTesting(void) {
@@ -141,17 +153,16 @@ static void epaperDisplayPartial(void) {
 void epaperDisplay(EpaperOptions_e refreshType,
                    EpaperSetupType_e epaperSetupType,
                    EpaperPartialCluster* const cluster) {
-  epaperDisableDisplayChangeSources();
+  // epaperDisableDisplayChangeSources();
   if (epaperAwake == epaperSleepMode)
     SWERROR_HANDLER();
-
   static uint32_t countPartialRefresh = 0;
   if (ImageBuffer != NULL) {
     nrf_drv_timer_clear(&timerEpaperSleep);
     if (refreshType == epaperFullRefresh) {
       epaperTurnOnDisplay(epaperSetupType);
       EPD_1IN54_V2_Display(ImageBuffer);
-      timerEnableEpaperRefresh(1500);
+      // timerEnableEpaperRefresh(1);
       countPartialRefresh = 0;
     } else if ((cluster->epaperEntryCount == epaperFirstEntry) ||
                countPartialRefresh > EPAPERMAXPARTIALREFRESH) {
@@ -210,7 +221,7 @@ void epaperUpdateDateTime(CalDateTime const* const dateTime,
   epaperEntryTracker[epaperDateTime] = epaperMultiEntry;
 }
 
-void epaperExitCalendar(void) {
+void epaperExitToHome(void) {
   epaperEntryTracker[epaperHomeScreen] = epaperFirstEntry;
   homeScreenDisplay();
 }
@@ -235,10 +246,10 @@ void epaperDisplayHomscreenSelect(HomescreenStates_e homescreenState) {
   (*(epaperInitDisplayFunctions[state]))();
 }
 
-static void epaperDisableDisplayChangeSources(void) {
-  epaperBlockState = epaperBlock;
-  buttonDisableInterrupts();
-}
+// static void epaperDisableDisplayChangeSources(void) {
+//   epaperBlockState = epaperBlock;
+//   buttonDisableInterrupts();
+// }
 
 void epaperEnableDisplayChangeSources(void) {
   epaperBlockState = epaperNoBlock;
@@ -286,14 +297,9 @@ EpaperMode_e epaperGetMode(void) {
   return epaperAwake;
 }
 
-uint8_t const* const epaperDisplayTextFile(uint8_t const* const textFile,
-                                           uint32_t fileLength) {
-  epaperState = epaperFileIO;
-  Paint_Clear(WHITE);
-  Paint_SetRotate(270);
-  Paint_DrawBitMap(Border);
-  // nrf_gpio_pin_write(SOCONLED, 1);
-  uint8_t const* const newTextLocation =
+static char const* const epaperDisplayTextFile(char const* const textFile,
+                                               uint32_t fileLength) {
+  char const* const newTextLocation =
       PaintDrawTextFile(textFile, fileLength, &Font16, WHITE, BLACK);
 
   epaperDisplay(epaperFullRefresh, epaperText, NULL);
@@ -307,6 +313,125 @@ void epaperDisplayError(uint32_t error) {
   Paint_SetRotate(270);
   Paint_DrawBitMap(Border);
   Paint_DrawNum(50, 50, error, &Font20, WHITE, BLACK);
+  epaperDisplay(epaperFullRefresh, epaperText, NULL);
+  epaperEntryTracker[epaperHomeScreen] = epaperMultiEntry;
+}
+
+void epaperDisplayFiles(FilesStatesTracker const* const filesState,
+                        EpaperPrintPosition const* const printPosition) {
+  epaperState = epaperFileIO;
+  switch (filesState->filesGlobalState) {
+    case (filesGlobalHomescreen): {
+      epaperDisplayFilesHomescreen(filesState->filesHomescreenState,
+                                   printPosition);
+      break;
+    }
+    case (filesGlobalDirectory): {
+      epaperDisplayFilesDirectory(filesState->filesDirectoryState,
+                                  printPosition);
+      break;
+    }
+    case (filesGlobalUpload): {
+      epaperDisplayFilesUpload(filesState->filesUploadingState, printPosition);
+      break;
+    }
+    default:
+      SWERROR_HANDLER();
+  }
+  epaperEntryTracker[epaperHomeScreen] = epaperMultiEntry;
+}
+
+static void epaperDisplayFilesHomescreen(
+    const FilesHomescreenStates_e homescreenState,
+    EpaperPrintPosition const* const printPosition) {
+  Paint_Clear(WHITE);
+  Paint_SetRotate(0);
+  Paint_DrawBitMap(FilesHomescreen);
+
+  Paint_DrawRectangle(
+      printPosition->y, printPosition->x, printPosition->y + FILESRECHEIGHT,
+      printPosition->x + FILESRECWIDTH, BLACK, DOT_PIXEL_2X2, DRAW_FILL_EMPTY);
+  epaperDisplay(epaperFullRefresh, epaperBitmap, NULL);
+}
+
+const char* epaperUploadStrings[filesUploadingStatesSize] = {
+    "Uploading...", "Finished Uploading. Send Another Or Exit.  ",
+    "Timeout Nothing Sent..."};
+static void epaperDisplayFilesUpload(
+    const FilesUploadingStates_e uploadState,
+    EpaperPrintPosition const* const printPosition) {
+  Paint_Clear(WHITE);
+  Paint_SetRotate(270);
+  Paint_DrawBitMap(Border);
+  const char* uploadString = epaperUploadStrings[uploadState];
+  Paint_DrawString_EN(printPosition->x, printPosition->y, uploadString, &Font20,
+                      WHITE, BLACK);
+  epaperDisplay(epaperFullRefresh, epaperText, NULL);
+}
+
+static void epaperDisplayFilesDirectory(
+    const FilesDirectoryStates_e directoryState,
+    EpaperPrintPosition const* const printPosition) {
+  switch (directoryState) {
+    case (filesDirectoryFileNames): {
+      epaperDisplayFilesDirectoryFilenames();
+      break;
+    }
+    case (filesDirectoryText): {
+      epaperDisplayFilesDirectoryTextFile();
+      break;
+    }
+    default:
+      SWERROR_HANDLER();
+  }
+}
+
+static void epaperDisplayFilesDirectoryFilenames(void) {
+  Paint_Clear(WHITE);
+  Paint_SetRotate(270);
+  Paint_DrawBitMap(Border);
+
+  for (uint32_t i = 0; i < DIRNUMTITLES; i++) {
+    char const* const fileName = filesGetDirectoryFilenames(i);
+    if (fileName != NULL) {
+      DRAW_FILL fill = DRAW_FILL_EMPTY;
+
+      if (filesGetDirectoryFilenamesHighlight() == i)
+        fill = DRAW_FILL_FULL;
+      Paint_DrawRectangle(DIRSELECTRECX, DIRTITLEY + i * DIRYOFFSET,
+                          DIRSELECTRECX + DIRSELECRECWIDTH,
+                          (DIRTITLEY + i * DIRYOFFSET) + DIRSELECRECHEIGHT,
+                          BLACK, DOT_PIXEL_1X1, fill);
+
+      Paint_DrawString_EN(DIRTITLEX, DIRTITLEY + i * DIRYOFFSET, fileName,
+                          &Font16, WHITE, BLACK);
+    }
+  }
+
+  epaperDisplay(epaperFullRefresh, epaperText, NULL);
+}
+
+static char const* newTextFileLocation;
+void epaperDisplayFilesDirectoryTextFile(void) {
+  Paint_Clear(WHITE);
+  Paint_SetRotate(270);
+  Paint_DrawBitMap(Border);
+
+  FilesTextFilePackage textFilePackage = filesGetTextFile();
+  newTextFileLocation =
+      epaperDisplayTextFile(textFilePackage.textFile, textFilePackage.size);
+  // save pointer to be retrieved
+}
+
+char const* const epaperGetNewTextFileLocation(void) {
+  return newTextFileLocation;
+}
+
+void epaperDisplayTestingString(char const* testingString) {
+  Paint_Clear(WHITE);
+  Paint_SetRotate(270);
+  Paint_DrawBitMap(Border);
+  Paint_DrawString_EN(10, 10, testingString, &Font20, WHITE, BLACK);
   epaperDisplay(epaperFullRefresh, epaperText, NULL);
   epaperEntryTracker[epaperHomeScreen] = epaperMultiEntry;
 }

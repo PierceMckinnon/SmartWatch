@@ -6,6 +6,7 @@ SDK_ROOT := ./SDK
 PROJ_DIR := ./Source
 EPAPER_ROOT := ./Epaper
 DRIVERS_ROOT := ./Drivers
+LITTLEFS_ROOT := ../../littlefs
 
 $(OUTPUT_DIRECTORY)/nrf52832_xxaa.out: \
   LINKER_SCRIPT  := nrf52_freertos.ld
@@ -61,6 +62,8 @@ SRC_FILES += \
   $(PROJ_DIR)/files.c\
   $(PROJ_DIR)/sendreceive.c\
   $(PROJ_DIR)/spiconfig.c\
+  $(LITTLEFS_ROOT)/lfs.c \
+  $(LITTLEFS_ROOT)/lfs_util.c \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_spim.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_spi.c \
@@ -120,6 +123,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/log/src \
   $(EPAPER_ROOT)\
   $(EPAPER_ROOT)/Fonts \
+  $(LITTLEFS_ROOT)
 
 
 # Libraries common to all targets

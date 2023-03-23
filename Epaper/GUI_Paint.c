@@ -810,11 +810,11 @@ void Paint_DrawString_EN(UWORD Xstart,
   }
 }
 
-uint8_t const* const PaintDrawTextFile(uint8_t const* const pTextFile,
-                                       uint32_t textLength,
-                                       sFONT* Font,
-                                       UWORD Color_Foreground,
-                                       UWORD Color_Background) {
+char const* const PaintDrawTextFile(char const* const pTextFile,
+                                    uint32_t textLength,
+                                    sFONT* Font,
+                                    UWORD Color_Foreground,
+                                    UWORD Color_Background) {
   const int startPointX = 10;
   const int startPointY = 10;
 
@@ -824,7 +824,7 @@ uint8_t const* const PaintDrawTextFile(uint8_t const* const pTextFile,
   typedef enum TextSearchState { normalState, newLineState } TextSearchState;
   TextSearchState textSearchState = normalState;
 
-  uint8_t const* textFile = pTextFile;
+  char const* textFile = pTextFile;
 
   for (uint32_t i = 0; i < textLength; i++) {
     switch (textSearchState) {
@@ -873,11 +873,11 @@ uint8_t const* const PaintDrawTextFile(uint8_t const* const pTextFile,
 #define ARRAY_LEN 255
 void Paint_DrawNum(UWORD Xpoint,
                    UWORD Ypoint,
-                   uint32_t Nummber,
+                   int32_t Nummber,
                    sFONT* Font,
                    UWORD Color_Foreground,
                    UWORD Color_Background) {
-  int16_t Num_Bit = 1, Str_Bit = 0;
+  int16_t Num_Bit = 0, Str_Bit = 0;
   uint8_t Str_Array[ARRAY_LEN] = {0}, Num_Array[ARRAY_LEN] = {0};
   uint8_t* pStr = Str_Array;
 
@@ -885,7 +885,7 @@ void Paint_DrawNum(UWORD Xpoint,
     return;
   }
 
-  Num_Array[0] = '\0';
+  // Num_Array[0] = '\0';
   // Converts a number to a string
   do {
     Num_Array[Num_Bit] = (Nummber % 10) + '0';

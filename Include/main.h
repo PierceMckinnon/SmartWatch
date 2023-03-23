@@ -3,12 +3,18 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-
 #include "app_error.h"
+#include "nrf_delay.h"
+#include "nrf_gpio.h"
+#include "pinconfig.h"
 
 static inline void SWERROR_HANDLER() {
-  while (1)
-    ;
+  int x = 1;
+  while (1) {
+    nrf_gpio_pin_write(SOCONLED, x);
+    nrf_delay_ms(100);
+    x ^= 1;
+  }
 }
 
 typedef void (*buttonHandlers)(void);

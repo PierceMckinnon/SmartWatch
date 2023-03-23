@@ -40,6 +40,7 @@ void buttonFirstEnableInterrupts(void) {
 void buttonEnableInterrupts(void) {
   buttonInterruptsState++;
   if (buttonInterruptsState == 0) {
+    nrf_gpio_pin_write(SOCONLED, 1);
     for (int i = 0; i < BUTTONNUM; i++) {
       nrf_drv_gpiote_in_event_enable((int)buttonsPinList[i], true);
     }
@@ -47,6 +48,7 @@ void buttonEnableInterrupts(void) {
 }
 
 void buttonDisableInterrupts(void) {
+  nrf_gpio_pin_write(SOCONLED, 0);
   buttonInterruptsState--;
   for (int i = 0; i < BUTTONNUM; i++) {
     nrf_drv_gpiote_in_event_disable((int)buttonsPinList[i]);

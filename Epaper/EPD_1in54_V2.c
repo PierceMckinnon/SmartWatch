@@ -47,7 +47,7 @@ void EPD_1IN54_V2_CFG_GPIO(void) {
 }
 
 void EPD_1IN54_V2_SET_SPI(void) {
-  spi = spiGetDrvConfig(spiEpaper);
+  spi = spiGetDrvConfig();
 }
 // waveform full refresh
 unsigned char WF_Full_1IN54[159] = {

@@ -6,6 +6,7 @@
 #include "GUI_Paint.h"
 #include "bitmaps.h"
 #include "calendar.h"
+#include "files.h"
 #include "homescreen.h"
 
 #define EPAPERMAXPARTIALREFRESH 20
@@ -53,10 +54,16 @@ void epaperDisplayHomscreenSelect(HomescreenStates_e homescreenState);
 void epaperUpdateDateTime(CalDateTime const* const dateTime,
                           CalVariables_e highlight,
                           const EpaperPrintPosition printPosition);
-void epaperExitCalendar(void);
+void epaperExitToHome(void);
 void epaperWakeFromSleep(void);
-uint8_t const* const epaperDisplayTextFile(uint8_t const* const textFile,
-                                           uint32_t fileLength);
+// uint8_t const* const epaperDisplayTextFile(uint8_t const* const textFile,
+//                                            uint32_t fileLength);
 void epaperDisplayError(uint32_t error);
+
+void epaperDisplayFiles(FilesStatesTracker const* const filesState,
+                        EpaperPrintPosition const* const printPosition);
+void epaperExitFiles(void);
+void epaperDisplayTestingString(char const* testingString);
+char const* const epaperGetNewTextFileLocation(void);
 
 #endif

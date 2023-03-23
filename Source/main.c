@@ -32,6 +32,7 @@ static void setupEpaper(void);
 static void setupTimers(void);
 static void setupRTC(void);
 static void setupSPI(void);
+static void setupFlash(void);
 // ENABLES
 static void enableTimers(void);
 // TASKS
@@ -40,7 +41,7 @@ static void buttonTopLeftPushedTask(void* pvParameter);
 static void buttonBottomLeftPushedTask(void* pvParameter);
 static void buttonBottomRightPushedTask(void* pvParameter);
 static void epaperInactiveTimerTask(void* pvParameter);
-static void epaperRefreshDelayTask(void* pvParameter);
+// static void epaperRefreshDelayTask(void* pvParameter);
 static void buttonIntDelayTask(void* pvParameter);
 static void dateTimeRTCTask(void* pvParameter);
 static void fileUartTask(void* pvParameter);
@@ -54,37 +55,41 @@ static void handleButtonPress(ButtonTypePresses_e buttonPressed);
 static void isrGiveSemaphore(SemaphoreHandle_t* semaphore);
 
 static const ButtonHandlerSetup* buttonHandlerFuncs[epaperStatesSize] = {
-    &homescreenButtonHandlers, &calButtonHandlers, NULL, NULL};
+    &homescreenButtonHandlers, &calButtonHandlers, NULL, &filesButtonHandlers};
 
 static SemaphoreHandle_t buttonSemaphore[BUTTONNUM] = {};
 static SemaphoreHandle_t epaperInactiveSemaphore = NULL;
 static SemaphoreHandle_t epaperRefreshDelaySemaphore = NULL;
 static SemaphoreHandle_t buttonIntDelaySemaphore = NULL;
+static SemaphoreHandle_t uartSemaphore = NULL;
 static SemaphoreHandle_t rtcSemaphore = NULL;
 
 const nrf_drv_timer_t timerEpaperSleep = NRF_DRV_TIMER_INSTANCE(0);
 const nrf_drv_timer_t timerEpaperRefreshDelay = NRF_DRV_TIMER_INSTANCE(1);
 const nrf_drv_timer_t timerButtonIntDelay = NRF_DRV_TIMER_INSTANCE(2);
+const nrf_drv_timer_t timerUart = NRF_DRV_TIMER_INSTANCE(3);
 
 void vApplicationStackOverflowHook(TaskHandle_t* pxTask,
                                    signed char* pcTaskName) {
   while (1) {
     // bsp_board_led_invert(BSP_BOARD_LED_3);
-    nrf_delay_ms(500);
+    epaperDisplayTestingString("STACKO");
+    SWERROR_HANDLER();
   }
 }
 
 void vApplicationMallocFailedHook(void) {
   while (1) {
+    epaperDisplayTestingString("MALLOCO");
     // bsp_board_led_invert(BSP_BOARD_LED_2);
-    nrf_delay_ms(500);
+    SWERROR_HANDLER();
   }
 }
 
-void vApplicationIdleHook(void) {
-  // can place in low power
-  bsp_board_led_invert(BSP_BOARD_LED_1);
-}
+// void vApplicationIdleHook(void) {
+//   // can place in low power
+//   // bsp_board_led_invert(BSP_BOARD_LED_1);
+// }
 
 int main(void) {
 #ifdef PCB
@@ -97,32 +102,38 @@ int main(void) {
   setupEpaper();
   setupTimers();
   setupRTC();
+  setupFlash();
+
+  // filesTest();
+
+  // while (1)
+  //   ;
 
   xTaskCreate(buttonTopRightPushedTask, "ButtonTopRightTask",
-              configMINIMAL_STACK_SIZE + 100, (void*)NULL, 1, NULL);
+              configMINIMAL_STACK_SIZE + 150, (void*)NULL, 1, NULL);
   xTaskCreate(buttonTopLeftPushedTask, "ButtonTopLeftTask",
-              configMINIMAL_STACK_SIZE + 100, (void*)NULL, 1, NULL);
+              configMINIMAL_STACK_SIZE + 150, (void*)NULL, 1, NULL);
   xTaskCreate(buttonBottomLeftPushedTask, "ButtonBottomLeftTask",
-              configMINIMAL_STACK_SIZE + 100, (void*)NULL, 1, NULL);
+              configMINIMAL_STACK_SIZE + 150, (void*)NULL, 1, NULL);
   xTaskCreate(buttonBottomRightPushedTask, "ButtonBottomRightTask",
-              configMINIMAL_STACK_SIZE + 100, (void*)NULL, 1, NULL);
+              configMINIMAL_STACK_SIZE + 150, (void*)NULL, 1, NULL);
   xTaskCreate(epaperInactiveTimerTask, "EpaperInactiveTask",
               configMINIMAL_STACK_SIZE, (void*)NULL, 0, NULL);
-  xTaskCreate(epaperRefreshDelayTask, "EpaperRefreshDelayTask",
-              configMINIMAL_STACK_SIZE + 200, (void*)NULL, 1, NULL);
+  // xTaskCreate(epaperRefreshDelayTask, "EpaperRefreshDelayTask",
+  //             configMINIMAL_STACK_SIZE + 50, (void*)NULL, 1, NULL);
   xTaskCreate(buttonIntDelayTask, "ButtonIntDelayTask",
               configMINIMAL_STACK_SIZE, (void*)NULL, 1, NULL);
-  xTaskCreate(fileUartTask, "fileUartTask", configMINIMAL_STACK_SIZE,
+  xTaskCreate(fileUartTask, "fileUartTask", configMINIMAL_STACK_SIZE + 200,
               (void*)NULL, 1, NULL);
-  xTaskCreate(dateTimeRTCTask, "RTCTask", configMINIMAL_STACK_SIZE + 200,
+  xTaskCreate(dateTimeRTCTask, "RTCTask", configMINIMAL_STACK_SIZE + 100,
               (void*)NULL, 2, NULL);
+
+  buttonFirstEnableInterrupts();
 
   homeScreenDisplay();
 
-  sendreceiveInit();
-
   // Activate
-  buttonFirstEnableInterrupts();
+
   enableTimers();
 
   /* Activate deep sleep mode */
@@ -196,6 +207,10 @@ static void setupTimers(void) {
       nrf_drv_timer_init(&timerButtonIntDelay, &timerConfig, timerIntHandler);
   APP_ERROR_CHECK(err_code);
   vSemaphoreCreateBinary(buttonIntDelaySemaphore);
+
+  err_code = nrf_drv_timer_init(&timerUart, &timerConfig, timerIntHandler);
+  APP_ERROR_CHECK(err_code);
+  vSemaphoreCreateBinary(uartSemaphore);
 }
 
 static void setupRTC(void) {
@@ -206,8 +221,20 @@ static void setupRTC(void) {
   vSemaphoreCreateBinary(rtcSemaphore);
 }
 
-// ENABLES
+static void setupFlash(void) {
+  W25qxx_Cfg_GPIO();
+  if (!W25qxx_Init()) {
+    SWERROR_HANDLER();
+  }
+  // for (uint32_t i = 0; i < 256; i++) {
+  //   W25qxx_EraseBlock(i);
+  // }
+  // // W25qxx_EraseChip();
+  // W25qxx_EraseSector(0);
+  filesFSInit();
+}
 
+// ENABLES
 static void enableTimers(void) {
   nrf_drv_timer_enable(&timerEpaperSleep);
   // nrf_drv_timer_enable(&timerEpaperRefreshDelay);
@@ -274,17 +301,17 @@ static void epaperInactiveTimerTask(void* pvParameter) {
   }
 }
 
-static void epaperRefreshDelayTask(void* pvParameter) {
-  UNUSED_PARAMETER(pvParameter);
-  // dont block
-  xSemaphoreTake(epaperRefreshDelaySemaphore, 0);
+// static void epaperRefreshDelayTask(void* pvParameter) {
+//   UNUSED_PARAMETER(pvParameter);
+//   // dont block
+//   xSemaphoreTake(epaperRefreshDelaySemaphore, 0);
 
-  while (true) {
-    xSemaphoreTake(epaperRefreshDelaySemaphore, portMAX_DELAY);
-    nrf_drv_timer_disable(&timerEpaperRefreshDelay);
-    epaperEnableDisplayChangeSources();
-  }
-}
+//   while (true) {
+//     xSemaphoreTake(epaperRefreshDelaySemaphore, portMAX_DELAY);
+//     nrf_drv_timer_disable(&timerEpaperRefreshDelay);
+//     epaperEnableDisplayChangeSources();
+//   }
+// }
 
 static void buttonIntDelayTask(void* pvParameter) {
   UNUSED_PARAMETER(pvParameter);
@@ -304,16 +331,21 @@ static void dateTimeRTCTask(void* pvParameter) {
   xSemaphoreTake(rtcSemaphore, 0);
   while (true) {
     xSemaphoreTake(rtcSemaphore, portMAX_DELAY);
+    calUpdateMinute(
+        ((epaperGetState() == epaperDateTime) && epaperGetBlockState())
+            ? UpdateDisplay
+            : NoAction);
   }
 }
 
 static void fileUartTask(void* pvParameter) {
   UNUSED_PARAMETER(pvParameter);
-  const TickType_t filesUartCheckRate = pdMS_TO_TICKS(1000);
 
+  xSemaphoreTake(uartSemaphore, 0);
+  // int x = 1;
   while (true) {
-    vTaskDelay(filesUartCheckRate);
-    filesEmptyTheBuffer();
+    xSemaphoreTake(uartSemaphore, portMAX_DELAY);
+    sendReceiveGetData();
   }
 }
 
@@ -322,6 +354,8 @@ static void inputPinIntHandler(nrf_drv_gpiote_pin_t pin,
                                nrf_gpiote_polarity_t action) {
   if (action != NRF_GPIOTE_POLARITY_LOTOHI)
     return;
+  // static int x = 1;
+  // nrf_gpio_pin_write(SOCONLED, x);
   buttonDisableInterrupts();
   uint32_t time_ticks = nrf_drv_timer_ms_to_ticks(&timerButtonIntDelay,
                                                   TIMER_MS_BUTTON_INT_DELAY);
@@ -329,15 +363,10 @@ static void inputPinIntHandler(nrf_drv_gpiote_pin_t pin,
       &timerButtonIntDelay, NRF_TIMER_CC_CHANNEL2, time_ticks,
       NRF_TIMER_SHORT_COMPARE2_STOP_MASK | NRF_TIMER_SHORT_COMPARE2_CLEAR_MASK,
       true);
-  // for (uint32_t i = 0; i < 250; i++) {
-  //   if (0 == nrf_gpio_pin_read(pin)) {
-  //     nrf_drv_timer_enable(&timerButtonIntDelay);
-  //     return;
-  //   }
-  //   nrf_delay_ms(5);
-  // }
   nrf_drv_timer_enable(&timerButtonIntDelay);
+
   isrGiveSemaphore(&(buttonSemaphore[buttonIndex((Buttons_e)pin)]));
+  // x ^= 1;
 }
 
 static void timerIntHandler(nrf_timer_event_t event_type, void* p_context) {
@@ -352,6 +381,11 @@ static void timerIntHandler(nrf_timer_event_t event_type, void* p_context) {
     }
     case NRF_TIMER_EVENT_COMPARE2: {
       isrGiveSemaphore(&buttonIntDelaySemaphore);
+      break;
+    }
+    case NRF_TIMER_EVENT_COMPARE3: {
+      isrGiveSemaphore(&uartSemaphore);
+      break;
     }
     default:
       break;

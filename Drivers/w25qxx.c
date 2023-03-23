@@ -1,4 +1,5 @@
 
+#include "epaper.h"
 #include "nrf_delay.h"
 #include "nrf_gpio.h"
 #include "spiconfig.h"
@@ -22,25 +23,39 @@ void W25qxx_Cfg_GPIO(void) {
 }
 
 void W25qxx_Set_Spi(void) {
-  spi = spiGetDrvConfig(spiFlash);
+  spi = spiGetDrvConfig();
 }
 
 //###################################################################################################################
-uint8_t W25qxx_Spi(uint8_t Data) {
+uint8_t W25qxx_Spi_Byte_Receive(uint8_t Data) {
   uint8_t ret;
   SPI_TRANSFER_RECEIVE(spi, &Data, sizeof(Data), &ret, sizeof(ret));
   return ret;
 }
+
+void W25qxx_Spi(uint8_t Data) {
+  SPI_TRANSFER(spi, &Data, sizeof(Data));
+}
+
+static void W25qxx_Spi_Multi_Return(uint8_t Data,
+                                    uint8_t* returnBuffer,
+                                    uint32_t bufferLength) {
+  SPI_TRANSFER_RECEIVE(spi, &Data, sizeof(Data), returnBuffer, bufferLength);
+}
 //###################################################################################################################
 uint32_t W25qxx_ReadID(void) {
-  uint32_t Temp = 0, Temp0 = 0, Temp1 = 0, Temp2 = 0;
+  uint32_t Temp = 0;
+  // uint32_t Temp0 = 0, Temp1 = 0, Temp2 = 0;
   nrf_gpio_pin_write(_W25QXX_CS_PIN, 0);
-  W25qxx_Spi(0x9F);
-  Temp0 = W25qxx_Spi(W25QXX_DUMMY_BYTE);
-  Temp1 = W25qxx_Spi(W25QXX_DUMMY_BYTE);
-  Temp2 = W25qxx_Spi(W25QXX_DUMMY_BYTE);
-  nrf_gpio_pin_write(_W25QXX_CS_PIN, 1);
-  Temp = (Temp0 << 16) | (Temp1 << 8) | Temp2;
+  W25qxx_Spi_Multi_Return(0x9F, (uint8_t*)&Temp, 4 * sizeof(uint8_t));
+  //  W25qxx_Spi(0x9F);
+  // Temp0 = W25qxx_Spi(W25QXX_DUMMY_BYTE);
+  // Temp1 = W25qxx_Spi(W25QXX_DUMMY_BYTE);
+
+  // Temp2 = W25qxx_Spi(W25QXX_DUMMY_BYTE);
+  // nrf_gpio_pin_write(_W25QXX_CS_PIN, 1);
+  // Temp = (Temp0 << 16) | (Temp1 << 8) | Temp2;
+  // epaperDisplayError((Temp & 0xFF000000) >> 0x18);
   return Temp;
 }
 //###################################################################################################################
@@ -50,7 +65,7 @@ void W25qxx_ReadUniqID(void) {
   for (uint8_t i = 0; i < 4; i++)
     W25qxx_Spi(W25QXX_DUMMY_BYTE);
   for (uint8_t i = 0; i < 8; i++)
-    w25qxx.UniqID[i] = W25qxx_Spi(W25QXX_DUMMY_BYTE);
+    w25qxx.UniqID[i] = W25qxx_Spi_Byte_Receive(W25QXX_DUMMY_BYTE);
   nrf_gpio_pin_write(_W25QXX_CS_PIN, 1);
 }
 //###################################################################################################################
@@ -73,15 +88,15 @@ uint8_t W25qxx_ReadStatusRegister(uint8_t SelectStatusRegister_1_2_3) {
   nrf_gpio_pin_write(_W25QXX_CS_PIN, 0);
   if (SelectStatusRegister_1_2_3 == 1) {
     W25qxx_Spi(0x05);
-    status = W25qxx_Spi(W25QXX_DUMMY_BYTE);
+    status = W25qxx_Spi_Byte_Receive(W25QXX_DUMMY_BYTE);
     w25qxx.StatusRegister1 = status;
   } else if (SelectStatusRegister_1_2_3 == 2) {
     W25qxx_Spi(0x35);
-    status = W25qxx_Spi(W25QXX_DUMMY_BYTE);
+    status = W25qxx_Spi_Byte_Receive(W25QXX_DUMMY_BYTE);
     w25qxx.StatusRegister2 = status;
   } else {
     W25qxx_Spi(0x15);
-    status = W25qxx_Spi(W25QXX_DUMMY_BYTE);
+    status = W25qxx_Spi_Byte_Receive(W25QXX_DUMMY_BYTE);
     w25qxx.StatusRegister3 = status;
   }
   nrf_gpio_pin_write(_W25QXX_CS_PIN, 1);
@@ -110,7 +125,7 @@ void W25qxx_WaitForWriteEnd(void) {
   nrf_gpio_pin_write(_W25QXX_CS_PIN, 0);
   W25qxx_Spi(0x05);
   do {
-    w25qxx.StatusRegister1 = W25qxx_Spi(W25QXX_DUMMY_BYTE);
+    w25qxx.StatusRegister1 = W25qxx_Spi_Byte_Receive(W25QXX_DUMMY_BYTE);
     W25qxx_Delay(1);
   } while ((w25qxx.StatusRegister1 & 0x01) == 0x01);
   nrf_gpio_pin_write(_W25QXX_CS_PIN, 1);
@@ -131,7 +146,7 @@ bool W25qxx_Init(void) {
 #if (_W25QXX_DEBUG == 1)
   printf("w25qxx ID:0x%X\r\n", id);
 #endif
-  switch (id & 0x000000FF) {
+  switch ((id & 0xFF000000) >> 0x18) {
     case 0x20:  // 	w25q512
       w25qxx.ID = W25Q512;
       w25qxx.BlockCount = 1024;
@@ -243,9 +258,9 @@ void W25qxx_EraseChip(void) {
 #endif
   W25qxx_WriteEnable();
   nrf_gpio_pin_write(_W25QXX_CS_PIN, 0);
-  W25qxx_Spi(0xC7);
+  W25qxx_Spi(0x60);
   nrf_gpio_pin_write(_W25QXX_CS_PIN, 1);
-  W25qxx_WaitForWriteEnd();
+  // W25qxx_WaitForWriteEnd();
 #if (_W25QXX_DEBUG == 1)
   printf("w25qxx EraseBlock done after %d ms!\r\n", HAL_GetTick() - StartTime);
 #endif
@@ -625,6 +640,17 @@ void W25qxx_WritePage(uint8_t* pBuffer,
   W25qxx_Spi((Page_Address & 0xFF0000) >> 16);
   W25qxx_Spi((Page_Address & 0xFF00) >> 8);
   W25qxx_Spi(Page_Address & 0xFF);
+
+  //   uint8_t data = 0x02;
+  //   SPI_TRANSFER(spi, &data, sizeof(data));
+  // }
+
+  // uint8_t data1 = (Page_Address & 0xFF0000) >> 16;
+  // uint8_t data2 = (Page_Address & 0xFF00) >> 8;
+  // uint8_t data3 = Page_Address & 0xFF;
+  // SPI_TRANSFER(spi, &data1, sizeof(uint8_t));
+  // SPI_TRANSFER(spi, &data2, sizeof(uint8_t));
+  // SPI_TRANSFER(spi, &data3, sizeof(uint8_t));
   SPI_TRANSFER(spi, pBuffer, NumByteToWrite_up_to_PageSize);
   nrf_gpio_pin_write(_W25QXX_CS_PIN, 1);
   W25qxx_WaitForWriteEnd();
@@ -749,7 +775,7 @@ void W25qxx_ReadByte(uint8_t* pBuffer, uint32_t Bytes_Address) {
   W25qxx_Spi((Bytes_Address & 0xFF00) >> 8);
   W25qxx_Spi(Bytes_Address & 0xFF);
   W25qxx_Spi(0);
-  *pBuffer = W25qxx_Spi(W25QXX_DUMMY_BYTE);
+  *pBuffer = W25qxx_Spi_Byte_Receive(W25QXX_DUMMY_BYTE);
   nrf_gpio_pin_write(_W25QXX_CS_PIN, 1);
 #if (_W25QXX_DEBUG == 1)
   printf("w25qxx ReadByte 0x%02X done after %d ms\r\n", *pBuffer,
@@ -830,8 +856,27 @@ void W25qxx_ReadPage(uint8_t* pBuffer,
   W25qxx_Spi((Page_Address & 0xFF00) >> 8);
   W25qxx_Spi(Page_Address & 0xFF);
   W25qxx_Spi(0);
+
+  // if (w25qxx.ID >= W25Q256) {
+  //   W25qxx_Spi(0x0C);
+  //   W25qxx_Spi((Page_Address & 0xFF000000) >> 24);
+  // } else {
+  //   uint8_t data = 0x0B;
+  //   SPI_TRANSFER(spi, &data, sizeof(data));
+  // }
+
+  // uint8_t data1 = (Page_Address & 0xFF0000) >> 16;
+  // uint8_t data2 = (Page_Address & 0xFF00) >> 8;
+  // uint8_t data3 = Page_Address & 0xFF;
+  // uint8_t data4 = 0;
+  // SPI_TRANSFER(spi, &data1, sizeof(uint8_t));
+  // SPI_TRANSFER(spi, &data2, sizeof(uint8_t));
+  // SPI_TRANSFER(spi, &data3, sizeof(uint8_t));
+  // SPI_TRANSFER(spi, &data4, sizeof(uint8_t));
+  // SPI_TRANSFER(spi,&Page_Address, sizeof())
   SPI_RECEIVE(spi, pBuffer, NumByteToRead_up_to_PageSize);
   nrf_gpio_pin_write(_W25QXX_CS_PIN, 1);
+  // epaperDisplayError(*pBuffer);
 #if (_W25QXX_DEBUG == 1)
   StartTime = HAL_GetTick() - StartTime;
   for (uint32_t i = 0; i < NumByteToRead_up_to_PageSize; i++) {

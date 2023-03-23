@@ -28,13 +28,13 @@ void homescreenHandleTopRightPress(void) {
 }
 
 void homescreenHandleBottomRightPress(void) {
-  homeScreenDisplay();
+  homeScreenSelect();
 }
 
 void homescreenHandleBottomLeftPress(void) {
   // static int x = 1;
   // nrf_gpio_pin_write(SOCONLED, x);
-  homeScreenSelect();
+  homeScreenDisplay();
   // x ^= 1;
 }
 
@@ -58,6 +58,7 @@ static void homeScreenMoveDown(void) {
 
 static void homeScreenSelect(void) {
   epaperDisplayHomscreenSelect(homescreenState);
+  homescreenState = homescreenClock;
 }
 
 HomescreenStates_e homescreenGetState(void) {

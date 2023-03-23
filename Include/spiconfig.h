@@ -21,6 +21,6 @@ typedef enum SpiInstances_e {
 } SpiInstances_e;
 
 void spiInitAll(void);
-nrf_drv_spi_t const* spiGetDrvConfig(SpiInstances_e instance);
+nrf_drv_spi_t const* spiGetDrvConfig(void);
 
 #endif  //_SPI_CONFIG_H_

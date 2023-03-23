@@ -134,7 +134,6 @@ void calHandleTopLeftPress(void) {
       break;
     }
     default: {
-      nrf_gpio_pin_write(SOCONLED, 1);
       SWERROR_HANDLER();
     }
   }
@@ -150,7 +149,6 @@ void calHandleTopRightPress() {
       break;
     }
     default: {
-      nrf_gpio_pin_write(SOCONLED, 1);
       SWERROR_HANDLER();
     }
   }
@@ -166,7 +164,6 @@ void calHandleBottomRightPress(void) {
       break;
     }
     default: {
-      nrf_gpio_pin_write(SOCONLED, 1);
       SWERROR_HANDLER();
     }
   }
@@ -176,7 +173,7 @@ void calHandleBottomLeftPress(void) {
   switch (calState) {
     case (calUninitialized):
     case (calNormalClock): {
-      epaperExitCalendar();
+      epaperExitToHome();
       break;
     }
     case (calEditing): {
@@ -184,7 +181,6 @@ void calHandleBottomLeftPress(void) {
       break;
     }
     default: {
-      nrf_gpio_pin_write(SOCONLED, 1);
       SWERROR_HANDLER();
     }
   }

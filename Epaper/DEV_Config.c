@@ -36,14 +36,14 @@
 
 int DEV_Module_Init(void) {
   nrf_gpio_pin_write(EPAPERDC, 0);
-  nrf_gpio_pin_write(EPAPERCS, 0);
+  // nrf_gpio_pin_write(EPAPERCS, 0);
   nrf_gpio_pin_write(EPAPERRST, 1);
   return 0;
 }
 
 void DEV_Module_Exit(void) {
   nrf_gpio_pin_write(EPAPERDC, 0);
-  nrf_gpio_pin_write(EPAPERCS, 0);
+  // nrf_gpio_pin_write(EPAPERCS, 0);
 
   // close 5V
   nrf_gpio_pin_write(EPAPERRST, 0);
