@@ -52,5 +52,13 @@ halt;nrf5 mass_erase
 
 program /home/insteadof2/Documents/SmartWatch/Build/nrf52832_xxaa.out verify reset
 
+program /home/pierce/Documents/nrf52832_xxaa.out verify reset
+
+Windows:
+mode COM4 BAUD=115200 PARITY=n DATA=8
+copy "file" COMPORT
+
+sudo scp insteadof2@wormious.ddns.net:/home/insteadof2/Documents/SmartWatch/Build/nrf52832_xxaa.out ./
+
 
 

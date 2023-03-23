@@ -23,6 +23,7 @@
 #include "sendreceive.h"
 #include "spiconfig.h"
 #include "timerconfig.h"
+#include "vibration.h"
 #include "w25qxx.h"
 
 // SETUPS
@@ -104,6 +105,7 @@ int main(void) {
   setupTimers();
   setupRTC();
   setupFlash();
+  vibrateInit();
 
   // filesTest();
 
@@ -310,7 +312,7 @@ static void epaperInactiveTimerTask(void* pvParameter) {
 //   while (true) {
 //     xSemaphoreTake(epaperRefreshDelaySemaphore, portMAX_DELAY);
 //     nrf_drv_timer_disable(&timerEpaperRefreshDelay);
-//     epaperEnableDisplayChangeSources();
+//     vibrateStop();
 //   }
 // }
 

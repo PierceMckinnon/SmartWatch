@@ -11,7 +11,7 @@ const nrf_drv_rtc_t dateTimeRTC = NRF_DRV_RTC_INSTANCE(0);
 
 static const uint8_t calMinVals[calClear] = {MIN_DAY, MIN_MONTH, MIN_YEAR,
                                              MIN_HOUR, MIN_MINUTE};
-static CalDateTime calDateTime = {31, 12, 99, 23, 59};
+static CalDateTime calDateTime = {23, 3, 23, 4, 26};
 static CalStates_e calState = calUninitialized;
 static CalVariables_e calVariableHighlight = calClear;
 
@@ -122,15 +122,13 @@ static CalMaxDays_e calGetMonthMaxDay(CalMonths_e month, uint32_t year) {
 void calHandleTopLeftPress(void) {
   switch (calState) {
     case (calUninitialized): {
-      calEnterEditing();
       break;
     }
     case (calNormalClock): {
-      calEnterEditing();
       break;
     }
     case (calEditing): {
-      calExitEditing();
+      calDecrementHighlight();
       break;
     }
     default: {
@@ -157,8 +155,10 @@ void calHandleTopRightPress() {
 void calHandleBottomRightPress(void) {
   switch (calState) {
     case (calUninitialized):
-    case (calNormalClock):
+    case (calNormalClock): {
+      calEnterEditing();
       break;
+    }
     case (calEditing): {
       calIncrementHighlight();
       break;
@@ -177,7 +177,7 @@ void calHandleBottomLeftPress(void) {
       break;
     }
     case (calEditing): {
-      calDecrementHighlight();
+      calExitEditing();
       break;
     }
     default: {

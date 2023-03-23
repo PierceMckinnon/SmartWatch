@@ -36,6 +36,9 @@
 #define ACCINT1 19
 #define ACCINT2 20
 
+// VIBRATION
+#define VIBRATION 9
+
 #endif
 
 #ifdef TESTING

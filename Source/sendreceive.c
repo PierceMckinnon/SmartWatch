@@ -11,6 +11,7 @@
 #include "pinconfig.h"
 #include "sendreceive.h"
 #include "timerconfig.h"
+#include "vibration.h"
 
 // static void sendreceiveGetPush(void);
 static void sendReceiveBuildFilename(uint8_t character);
@@ -148,6 +149,7 @@ void sendReceiveGetData(void) {
              (sendreceiveState == sendreceivePushText)) {
     filesFileClose();
     app_uart_flush();
+    vibrateStart();
     filesDisplayUartDone();
     buttonEnableInterrupts();
     sendreceiveState = sendreceiveDone;
